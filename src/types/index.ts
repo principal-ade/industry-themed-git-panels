@@ -140,3 +140,110 @@ export interface PullRequestsSliceData {
   /** Repository name (e.g., 'claude-code') */
   repo?: string;
 }
+
+// ============================================================================
+// Git Configuration Types
+// ============================================================================
+
+/**
+ * A single git configuration entry.
+ */
+export interface GitConfigEntry {
+  /** Configuration key (e.g., 'user.name', 'core.editor') */
+  key: string;
+  /** Configuration value */
+  value: string;
+  /** Scope where this config is defined */
+  scope: 'local' | 'global' | 'system';
+}
+
+/**
+ * Git remote configuration.
+ */
+export interface GitRemoteInfo {
+  /** Remote name (e.g., 'origin', 'upstream') */
+  name: string;
+  /** Fetch URL */
+  fetchUrl: string;
+  /** Push URL (may differ from fetch) */
+  pushUrl?: string;
+}
+
+/**
+ * Git branch configuration.
+ */
+export interface GitBranchConfig {
+  /** Branch name */
+  name: string;
+  /** Remote tracking branch */
+  remote?: string;
+  /** Merge reference */
+  merge?: string;
+}
+
+/**
+ * Data structure for the 'gitConfig' slice.
+ */
+export interface GitConfigSliceData {
+  /** User configuration (name, email, etc.) */
+  user: {
+    name?: string;
+    email?: string;
+    signingKey?: string;
+  };
+  /** Core git settings */
+  core: {
+    editor?: string;
+    autocrlf?: string;
+    ignorecase?: boolean;
+    filemode?: boolean;
+    fsmonitor?: boolean | string;
+    untrackedCache?: boolean | string;
+    preloadIndex?: boolean;
+    fscache?: boolean;
+    symlinks?: boolean;
+    longpaths?: boolean;
+  };
+  /** Performance & optimization settings */
+  performance: {
+    /** Maintenance/gc settings */
+    gcAuto?: number | string;
+    gcAutoPackLimit?: number | string;
+    /** Pack settings */
+    packThreads?: number | string;
+    packWindowMemory?: string;
+    /** Feature flags */
+    featureManyFiles?: boolean;
+    featureExperimental?: boolean;
+  };
+  /** Fetch/pull/push settings */
+  transfer: {
+    fetchPrune?: boolean;
+    fetchPruneTag?: boolean;
+    pullRebase?: boolean | string;
+    pullFf?: string;
+    pushDefault?: string;
+    pushAutoSetupRemote?: boolean;
+    pushFollowTags?: boolean;
+  };
+  /** Merge and diff settings */
+  mergeDiff: {
+    mergeFf?: string;
+    mergeConflictStyle?: string;
+    diffAlgorithm?: string;
+    diffColorMoved?: string;
+    rerereEnabled?: boolean;
+  };
+  /** Commit settings */
+  commit: {
+    gpgSign?: boolean;
+    template?: string;
+    verbose?: boolean;
+  };
+  /** Configured remotes */
+  remotes: GitRemoteInfo[];
+  /** Branch configurations */
+  branches: GitBranchConfig[];
+  /** All raw config entries for detailed view */
+  allEntries: GitConfigEntry[];
+}

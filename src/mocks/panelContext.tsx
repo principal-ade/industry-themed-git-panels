@@ -10,7 +10,7 @@ import type {
   DataSlice,
 } from '../types';
 
-import type { CommitsSliceData, PullRequestsSliceData } from '../types';
+import type { CommitsSliceData, PullRequestsSliceData, GitConfigSliceData } from '../types';
 
 /**
  * Mock Git Status data for Storybook
@@ -136,6 +136,125 @@ const mockPullRequestsData: PullRequestsSliceData = {
 };
 
 /**
+ * Mock Git Config data for Storybook
+ */
+const mockGitConfigData: GitConfigSliceData = {
+  user: {
+    name: 'Alex Developer',
+    email: 'alex@example.com',
+    signingKey: 'ABC123DEF456',
+  },
+  core: {
+    editor: 'code --wait',
+    autocrlf: 'input',
+    ignorecase: true,
+    filemode: false,
+    fsmonitor: true,
+    untrackedCache: true,
+    preloadIndex: true,
+    fscache: true,
+  },
+  performance: {
+    gcAuto: 256,
+    gcAutoPackLimit: 50,
+    packThreads: 0,
+    packWindowMemory: '100m',
+    featureManyFiles: true,
+    featureExperimental: false,
+  },
+  transfer: {
+    fetchPrune: true,
+    fetchPruneTag: false,
+    pullRebase: true,
+    pullFf: 'only',
+    pushDefault: 'current',
+    pushAutoSetupRemote: true,
+    pushFollowTags: false,
+  },
+  mergeDiff: {
+    mergeFf: 'false',
+    mergeConflictStyle: 'diff3',
+    diffAlgorithm: 'histogram',
+    diffColorMoved: 'zebra',
+    rerereEnabled: true,
+  },
+  commit: {
+    gpgSign: true,
+    template: '~/.gitmessage',
+    verbose: true,
+  },
+  remotes: [
+    {
+      name: 'origin',
+      fetchUrl: 'git@github.com:example/my-project.git',
+    },
+    {
+      name: 'upstream',
+      fetchUrl: 'git@github.com:original/my-project.git',
+    },
+  ],
+  branches: [
+    {
+      name: 'main',
+      remote: 'origin',
+      merge: 'refs/heads/main',
+    },
+    {
+      name: 'develop',
+      remote: 'origin',
+      merge: 'refs/heads/develop',
+    },
+    {
+      name: 'feature/git-config-panel',
+      remote: 'origin',
+      merge: 'refs/heads/feature/git-config-panel',
+    },
+  ],
+  allEntries: [
+    { key: 'user.name', value: 'Alex Developer', scope: 'global' },
+    { key: 'user.email', value: 'alex@example.com', scope: 'global' },
+    { key: 'user.signingkey', value: 'ABC123DEF456', scope: 'global' },
+    { key: 'core.editor', value: 'code --wait', scope: 'global' },
+    { key: 'core.autocrlf', value: 'input', scope: 'global' },
+    { key: 'core.fsmonitor', value: 'true', scope: 'local' },
+    { key: 'core.untrackedCache', value: 'true', scope: 'local' },
+    { key: 'core.preloadIndex', value: 'true', scope: 'global' },
+    { key: 'core.fscache', value: 'true', scope: 'global' },
+    { key: 'core.ignorecase', value: 'true', scope: 'local' },
+    { key: 'core.filemode', value: 'false', scope: 'local' },
+    { key: 'gc.auto', value: '256', scope: 'global' },
+    { key: 'gc.autoPackLimit', value: '50', scope: 'global' },
+    { key: 'pack.threads', value: '0', scope: 'global' },
+    { key: 'pack.windowMemory', value: '100m', scope: 'global' },
+    { key: 'feature.manyFiles', value: 'true', scope: 'global' },
+    { key: 'feature.experimental', value: 'false', scope: 'global' },
+    { key: 'fetch.prune', value: 'true', scope: 'global' },
+    { key: 'fetch.pruneTags', value: 'false', scope: 'global' },
+    { key: 'pull.rebase', value: 'true', scope: 'global' },
+    { key: 'pull.ff', value: 'only', scope: 'global' },
+    { key: 'push.default', value: 'current', scope: 'global' },
+    { key: 'push.autoSetupRemote', value: 'true', scope: 'global' },
+    { key: 'merge.ff', value: 'false', scope: 'global' },
+    { key: 'merge.conflictStyle', value: 'diff3', scope: 'global' },
+    { key: 'diff.algorithm', value: 'histogram', scope: 'global' },
+    { key: 'diff.colorMoved', value: 'zebra', scope: 'global' },
+    { key: 'rerere.enabled', value: 'true', scope: 'global' },
+    { key: 'commit.gpgSign', value: 'true', scope: 'global' },
+    { key: 'commit.template', value: '~/.gitmessage', scope: 'global' },
+    { key: 'commit.verbose', value: 'true', scope: 'global' },
+    { key: 'remote.origin.url', value: 'git@github.com:example/my-project.git', scope: 'local' },
+    { key: 'remote.origin.fetch', value: '+refs/heads/*:refs/remotes/origin/*', scope: 'local' },
+    { key: 'remote.upstream.url', value: 'git@github.com:original/my-project.git', scope: 'local' },
+    { key: 'remote.upstream.fetch', value: '+refs/heads/*:refs/remotes/upstream/*', scope: 'local' },
+    { key: 'branch.main.remote', value: 'origin', scope: 'local' },
+    { key: 'branch.main.merge', value: 'refs/heads/main', scope: 'local' },
+    { key: 'branch.develop.remote', value: 'origin', scope: 'local' },
+    { key: 'branch.develop.merge', value: 'refs/heads/develop', scope: 'local' },
+    { key: 'init.defaultBranch', value: 'main', scope: 'global' },
+  ],
+};
+
+/**
  * Create a mock DataSlice
  */
 const createMockSlice = <T,>(
@@ -165,6 +284,7 @@ export const createMockContext = (
     ['git', createMockSlice('git', mockGitStatusData)],
     ['commits', createMockSlice('commits', mockCommitsData)],
     ['pullRequests', createMockSlice('pullRequests', mockPullRequestsData)],
+    ['gitConfig', createMockSlice('gitConfig', mockGitConfigData)],
     [
       'markdown',
       createMockSlice('markdown', [
@@ -359,5 +479,11 @@ export const MockPanelProvider: React.FC<{
   const actions = createMockActions(actionsOverrides);
   const events = createMockEvents();
 
-  return <ThemeProvider>{children({ context, actions, events })}</ThemeProvider>;
+  return (
+    <ThemeProvider>
+      <div style={{ height: '100%', width: '100%' }}>
+        {children({ context, actions, events })}
+      </div>
+    </ThemeProvider>
+  );
 };

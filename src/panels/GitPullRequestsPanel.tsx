@@ -95,8 +95,6 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
     flexDirection: 'column',
     height: '100%',
     backgroundColor: theme.colors.backgroundSecondary,
-    borderRadius: '8px',
-    border: `1px solid ${theme.colors.border}`,
     overflow: 'hidden',
   };
 
@@ -185,106 +183,112 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
 
   return (
     <div style={containerStyle}>
-      {/* Header */}
+      {/* Header - 40px total including border */}
       <div
         style={{
-          padding: '16px',
+          height: '40px',
+          minHeight: '40px',
+          padding: '0 12px',
           borderBottom: `1px solid ${theme.colors.border}`,
           backgroundColor: theme.colors.backgroundSecondary,
           display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxSizing: 'border-box',
         }}
       >
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
+            gap: '8px',
+            color: theme.colors.textSecondary,
+            textTransform: 'uppercase',
+            fontWeight: 600,
+            fontSize: '12px',
           }}
         >
-          <div>
-            <div
+          <GitPullRequest size={14} />
+          Pull Requests
+          {owner && repo && (
+            <span
               style={{
-                fontSize: '18px',
-                fontWeight: 600,
-                color: theme.colors.text,
+                fontWeight: 400,
+                textTransform: 'none',
+                opacity: 0.7,
               }}
             >
-              Pull Requests
-            </div>
-            {owner && repo && (
-              <div
-                style={{
-                  color: theme.colors.textSecondary,
-                  fontSize: '13px',
-                  marginTop: '4px',
-                }}
-              >
-                {owner}/{repo}
-              </div>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={handleRefresh}
-            disabled={isLoading}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 14px',
-              borderRadius: '6px',
-              border: `1px solid ${theme.colors.border}`,
-              backgroundColor: theme.colors.background,
-              color: theme.colors.text,
-              cursor: isLoading ? 'default' : 'pointer',
-              fontWeight: 600,
-              opacity: isLoading ? 0.7 : 1,
-            }}
-          >
-            {isLoading ? (
-              <Loader2 size={16} className="spin" />
-            ) : (
-              <RefreshCcw size={16} />
-            )}
-            Refresh
-          </button>
+              · {owner}/{repo}
+            </span>
+          )}
         </div>
 
-        {/* Filter buttons */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {(['open', 'closed', 'all'] as const).map((value) => {
-            const isActive = filter === value;
-            const label = value === 'open' ? 'Open' : value === 'closed' ? 'Closed' : 'All';
+        <button
+          type="button"
+          onClick={handleRefresh}
+          disabled={isLoading}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 10px',
+            borderRadius: '4px',
+            border: `1px solid ${theme.colors.border}`,
+            backgroundColor: theme.colors.background,
+            color: theme.colors.text,
+            cursor: isLoading ? 'default' : 'pointer',
+            fontSize: '12px',
+            fontWeight: 500,
+            opacity: isLoading ? 0.7 : 1,
+          }}
+        >
+          {isLoading ? (
+            <Loader2 size={12} className="spin" />
+          ) : (
+            <RefreshCcw size={12} />
+          )}
+          {isLoading ? 'Refreshing...' : 'Refresh'}
+        </button>
+      </div>
 
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setFilter(value)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  borderRadius: '999px',
-                  border: isActive ? 'none' : `1px solid ${theme.colors.border}`,
-                  backgroundColor: isActive ? theme.colors.primary : theme.colors.background,
-                  color: isActive ? theme.colors.background : theme.colors.text,
-                  fontSize: '13px',
-                  fontWeight: isActive ? 600 : 500,
-                  cursor: 'pointer',
-                }}
-              >
-                {label}
-                <span style={{ opacity: 0.8 }}>({counts[value]})</span>
-              </button>
-            );
-          })}
-        </div>
+      {/* Filter buttons - equal width */}
+      <div
+        style={{
+          display: 'flex',
+          borderBottom: `1px solid ${theme.colors.border}`,
+        }}
+      >
+        {(['open', 'closed', 'all'] as const).map((value) => {
+          const isActive = filter === value;
+          const label = value === 'open' ? 'Open' : value === 'closed' ? 'Closed' : 'All';
+
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setFilter(value)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                border: 'none',
+                borderBottom: isActive ? `2px solid ${theme.colors.primary}` : '2px solid transparent',
+                backgroundColor: 'transparent',
+                color: isActive ? theme.colors.text : theme.colors.textSecondary,
+                fontSize: '13px',
+                fontWeight: isActive ? 600 : 500,
+                cursor: 'pointer',
+                marginBottom: '-1px',
+              }}
+            >
+              {label}
+              <span style={{ opacity: 0.7 }}>({counts[value]})</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* PR List */}

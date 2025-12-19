@@ -8,7 +8,7 @@ const meta: Meta<typeof GitCommitHistoryPanel> = {
   title: 'Git Panels/Commit History',
   component: GitCommitHistoryPanel,
   parameters: {
-    layout: 'padded',
+    layout: 'fullscreen',
   },
   tags: ['autodocs'],
 };

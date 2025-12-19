@@ -70,56 +70,51 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
     }
   };
 
-  // No repository connected
-  if (!context.currentScope.repository) {
-    return (
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    backgroundColor: theme.colors.backgroundSecondary,
+    overflow: 'hidden',
+  };
+
+  // Render a centered state message
+  const renderState = (message: string) => (
+    <div style={containerStyle}>
       <div
         style={{
-          padding: '16px',
-          backgroundColor: theme.colors.backgroundSecondary,
-          borderRadius: '8px',
-          border: `1px solid ${theme.colors.border}`,
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
           color: theme.colors.textSecondary,
         }}
       >
-        Connect a local repository to see commit history.
+        {message}
       </div>
-    );
+    </div>
+  );
+
+  // No repository connected
+  if (!context.currentScope.repository) {
+    return renderState('Connect a local repository to see commit history.');
   }
 
   // No commits slice available
   if (!hasCommits) {
-    return (
-      <div
-        style={{
-          padding: '16px',
-          backgroundColor: theme.colors.backgroundSecondary,
-          borderRadius: '8px',
-          border: `1px solid ${theme.colors.border}`,
-          color: theme.colors.textSecondary,
-        }}
-      >
-        Commit history data is not available.
-      </div>
-    );
+    return renderState('Commit history data is not available.');
   }
 
   return (
-    <div
-      style={{
-        padding: '16px',
-        backgroundColor: theme.colors.backgroundSecondary,
-        borderRadius: '8px',
-        border: `1px solid ${theme.colors.border}`,
-        height: 'fit-content',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-      }}
-    >
-      {/* Header */}
+    <div style={containerStyle}>
+      {/* Header - 40px total including border */}
       <div
         style={{
+          height: '40px',
+          minHeight: '40px',
+          padding: '0 12px',
+          borderBottom: `1px solid ${theme.colors.border}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -127,6 +122,7 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
           textTransform: 'uppercase',
           fontWeight: 600,
           fontSize: theme.fontSizes[1],
+          boxSizing: 'border-box',
         }}
       >
         <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -142,7 +138,7 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
             alignItems: 'center',
             gap: '6px',
             padding: '4px 10px',
-            borderRadius: '6px',
+            borderRadius: '4px',
             border: `1px solid ${theme.colors.border}`,
             backgroundColor: theme.colors.background,
             color: theme.colors.text,
@@ -157,51 +153,56 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
         </button>
       </div>
 
-      {/* Loading state */}
-      {isLoading && commits.length === 0 && (
-        <div
-          style={{
-            padding: '20px',
-            textAlign: 'center',
-            color: theme.colors.textSecondary,
-            fontSize: theme.fontSizes[1],
-          }}
-        >
-          Loading commit history...
-        </div>
-      )}
+      {/* Content area */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+        }}
+      >
+        {/* Loading state */}
+        {isLoading && commits.length === 0 && (
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              color: theme.colors.textSecondary,
+              fontSize: theme.fontSizes[1],
+            }}
+          >
+            Loading commit history...
+          </div>
+        )}
 
-      {/* Empty state */}
-      {!isLoading && sortedCommits.length === 0 && (
-        <div
-          style={{
-            padding: '12px',
-            textAlign: 'center',
-            color: theme.colors.textSecondary,
-            fontSize: theme.fontSizes[1],
-            backgroundColor: theme.colors.background,
-            borderRadius: '6px',
-            border: `1px solid ${theme.colors.border}`,
-          }}
-        >
-          No commits found.
-        </div>
-      )}
+        {/* Empty state */}
+        {!isLoading && sortedCommits.length === 0 && (
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              color: theme.colors.textSecondary,
+              fontSize: theme.fontSizes[1],
+            }}
+          >
+            No commits found.
+          </div>
+        )}
 
-      {/* Commit list */}
-      {sortedCommits.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-          }}
-        >
-          {sortedCommits.map((commit) => (
-            <CommitCard key={commit.hash} commit={commit} theme={theme} />
-          ))}
-        </div>
-      )}
+        {/* Commit list */}
+        {sortedCommits.map((commit) => (
+          <CommitCard key={commit.hash} commit={commit} theme={theme} />
+        ))}
+      </div>
     </div>
   );
 };
