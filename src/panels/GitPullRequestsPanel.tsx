@@ -131,7 +131,8 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
                 margin: 0,
                 marginBottom: '8px',
                 color: theme.colors.text,
-                fontSize: '16px',
+                fontFamily: theme.fonts.heading,
+                fontSize: theme.fontSizes[2],
                 fontWeight: 600,
               }}
             >
@@ -142,6 +143,8 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
                 style={{
                   margin: 0,
                   color: theme.colors.textSecondary,
+                  fontFamily: theme.fonts.body,
+                  fontSize: theme.fontSizes[1],
                   lineHeight: 1.5,
                 }}
               >
@@ -203,9 +206,10 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
             alignItems: 'center',
             gap: '8px',
             color: theme.colors.textSecondary,
-            textTransform: 'uppercase',
+            fontFamily: theme.fonts.heading,
+            fontSize: theme.fontSizes[0],
             fontWeight: 600,
-            fontSize: '12px',
+            textTransform: 'uppercase',
           }}
         >
           <GitPullRequest size={14} />
@@ -237,7 +241,8 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
             backgroundColor: theme.colors.background,
             color: theme.colors.text,
             cursor: isLoading ? 'default' : 'pointer',
-            fontSize: '12px',
+            fontFamily: theme.fonts.body,
+            fontSize: theme.fontSizes[0],
             fontWeight: 500,
             opacity: isLoading ? 0.7 : 1,
           }}
@@ -278,7 +283,8 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
                 borderBottom: isActive ? `2px solid ${theme.colors.primary}` : '2px solid transparent',
                 backgroundColor: 'transparent',
                 color: isActive ? theme.colors.text : theme.colors.textSecondary,
-                fontSize: '13px',
+                fontFamily: theme.fonts.body,
+                fontSize: theme.fontSizes[1],
                 fontWeight: isActive ? 600 : 500,
                 cursor: 'pointer',
                 marginBottom: '-1px',
@@ -308,11 +314,12 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
               marginTop: '48px',
               textAlign: 'center',
               color: theme.colors.textSecondary,
+              fontFamily: theme.fonts.body,
             }}
           >
             <GitPullRequest size={32} style={{ marginBottom: '12px' }} />
-            <div style={{ fontWeight: 600 }}>No pull requests found</div>
-            <div style={{ marginTop: '4px', fontSize: '13px' }}>
+            <div style={{ fontFamily: theme.fonts.heading, fontSize: theme.fontSizes[1], fontWeight: 600 }}>No pull requests found</div>
+            <div style={{ marginTop: '4px', fontSize: theme.fontSizes[0] }}>
               There are no {filter !== 'all' ? `${filter} ` : ''}pull requests to display.
             </div>
           </div>
@@ -391,7 +398,8 @@ const PullRequestCard: React.FC<{
                 borderRadius: '999px',
                 backgroundColor: badgeBg,
                 color: badgeColor,
-                fontSize: '12px',
+                fontFamily: theme.fonts.heading,
+                fontSize: theme.fontSizes[0],
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.02em',
@@ -406,7 +414,8 @@ const PullRequestCard: React.FC<{
                     borderRadius: '8px',
                     backgroundColor: theme.colors.backgroundSecondary,
                     color: theme.colors.textSecondary,
-                    fontSize: '11px',
+                    fontFamily: theme.fonts.body,
+                    fontSize: theme.fontSizes[0],
                     fontWeight: 500,
                     textTransform: 'capitalize',
                   }}
@@ -417,7 +426,8 @@ const PullRequestCard: React.FC<{
             </span>
             <span
               style={{
-                fontSize: '16px',
+                fontFamily: theme.fonts.heading,
+                fontSize: theme.fontSizes[2],
                 fontWeight: 600,
                 color: theme.colors.text,
                 display: 'inline-flex',
@@ -437,7 +447,8 @@ const PullRequestCard: React.FC<{
               gap: '12px',
               flexWrap: 'wrap',
               color: theme.colors.textSecondary,
-              fontSize: '12px',
+              fontFamily: theme.fonts.body,
+              fontSize: theme.fontSizes[0],
             }}
           >
             <span>by {pr.user?.login ?? 'unknown'}</span>
@@ -482,7 +493,8 @@ const PullRequestCard: React.FC<{
               alignItems: 'center',
               gap: '8px',
               color: theme.colors.textSecondary,
-              fontSize: '12px',
+              fontFamily: theme.fonts.monospace,
+              fontSize: theme.fontSizes[0],
             }}
           >
             <GitBranch size={14} />
@@ -499,7 +511,8 @@ const PullRequestCard: React.FC<{
               style={{
                 marginTop: '4px',
                 color: theme.colors.textSecondary,
-                fontSize: '13px',
+                fontFamily: theme.fonts.body,
+                fontSize: theme.fontSizes[1],
                 lineHeight: 1.5,
                 maxHeight: '72px',
                 overflow: 'hidden',
@@ -526,7 +539,8 @@ const PullRequestCard: React.FC<{
             backgroundColor: theme.colors.backgroundSecondary,
             color: theme.colors.text,
             textDecoration: 'none',
-            fontSize: '13px',
+            fontFamily: theme.fonts.body,
+            fontSize: theme.fontSizes[1],
             fontWeight: 600,
             whiteSpace: 'nowrap',
           }}
@@ -543,7 +557,8 @@ const PullRequestCard: React.FC<{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            fontSize: '12px',
+            fontFamily: theme.fonts.monospace,
+            fontSize: theme.fontSizes[0],
             color: theme.colors.primary,
           }}
         >
@@ -565,7 +580,8 @@ export const GitPullRequestsPanelPreview: React.FC = () => {
     <div
       style={{
         padding: '12px',
-        fontSize: '12px',
+        fontFamily: theme.fonts.body,
+        fontSize: theme.fontSizes[0],
         color: theme.colors.text,
         display: 'flex',
         flexDirection: 'column',
@@ -588,20 +604,21 @@ export const GitPullRequestsPanelPreview: React.FC = () => {
             borderRadius: '999px',
             backgroundColor: '#3b82f622',
             color: '#3b82f6',
-            fontSize: '11px',
+            fontFamily: theme.fonts.heading,
+            fontSize: theme.fontSizes[0],
             fontWeight: 600,
             textTransform: 'uppercase',
           }}
         >
           Review
         </span>
-        <span style={{ fontWeight: 600 }}>#42 Refine panel layout system</span>
+        <span style={{ fontFamily: theme.fonts.heading, fontWeight: 600 }}>#42 Refine panel layout system</span>
       </div>
       <div
         style={{
           paddingLeft: '4px',
           color: theme.colors.textSecondary,
-          fontSize: '11px',
+          fontSize: theme.fontSizes[0],
           lineHeight: 1.4,
         }}
       >
@@ -613,7 +630,7 @@ export const GitPullRequestsPanelPreview: React.FC = () => {
           alignItems: 'center',
           gap: '8px',
           color: theme.colors.textSecondary,
-          fontSize: '11px',
+          fontSize: theme.fontSizes[0],
         }}
       >
         <span>4 checks</span>
