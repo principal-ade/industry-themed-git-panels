@@ -365,14 +365,12 @@ const PullRequestCard: React.FC<{
         minWidth: 0,
       }}
     >
-      {/* Header row: PR number + draft badge + branch info */}
+      {/* Title row: PR number + title */}
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'baseline',
           gap: '8px',
-          minWidth: 0,
-          overflow: 'hidden',
         }}
       >
         <span
@@ -386,55 +384,18 @@ const PullRequestCard: React.FC<{
         >
           #{pr.number}
         </span>
-        {pr.draft && (
-          <span
-            style={{
-              padding: '4px 10px',
-              borderRadius: '999px',
-              backgroundColor: theme.colors.background,
-              color: theme.colors.textSecondary,
-              fontFamily: theme.fonts.heading,
-              fontSize: theme.fontSizes[0],
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.02em',
-              flexShrink: 0,
-            }}
-          >
-            Draft
-          </span>
-        )}
         <span
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            color: theme.colors.textSecondary,
-            fontFamily: theme.fonts.monospace,
-            fontSize: theme.fontSizes[0],
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            minWidth: 0,
+            fontFamily: theme.fonts.heading,
+            fontSize: theme.fontSizes[2],
+            fontWeight: 600,
+            color: theme.colors.text,
+            lineHeight: 1.3,
+            wordBreak: 'break-word',
           }}
         >
-          <GitBranch size={14} style={{ flexShrink: 0 }} />
-          {pr.head?.ref ?? 'unknown'} → {pr.base?.ref ?? 'unknown'}
+          {pr.title}
         </span>
-      </div>
-
-      {/* Title */}
-      <div
-        style={{
-          fontFamily: theme.fonts.heading,
-          fontSize: theme.fontSizes[2],
-          fontWeight: 600,
-          color: theme.colors.text,
-          lineHeight: 1.3,
-          wordBreak: 'break-word',
-        }}
-      >
-        {pr.title}
       </div>
 
       {/* Metadata row */}
@@ -449,6 +410,23 @@ const PullRequestCard: React.FC<{
           fontSize: theme.fontSizes[0],
         }}
       >
+        {pr.draft && (
+          <span
+            style={{
+              padding: '4px 10px',
+              borderRadius: '999px',
+              backgroundColor: theme.colors.background,
+              color: theme.colors.textSecondary,
+              fontFamily: theme.fonts.heading,
+              fontSize: theme.fontSizes[0],
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.02em',
+            }}
+          >
+            Draft
+          </span>
+        )}
         <span>by {pr.user?.login ?? 'unknown'}</span>
         <span
           style={{
@@ -483,32 +461,53 @@ const PullRequestCard: React.FC<{
         )}
       </div>
 
-      {/* Expand button + Body preview */}
-      {pr.body && (
-        <>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsExpanded(!isExpanded);
-            }}
+      {/* Expand button + details */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsExpanded(!isExpanded);
+        }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+          padding: 0,
+          border: 'none',
+          backgroundColor: 'transparent',
+          color: theme.colors.textSecondary,
+          fontFamily: theme.fonts.body,
+          fontSize: theme.fontSizes[0],
+          cursor: 'pointer',
+        }}
+      >
+        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        {isExpanded ? 'Collapse' : 'Expand'}
+      </button>
+      {isExpanded && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          {/* Branch info */}
+          <span
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
-              padding: 0,
-              border: 'none',
-              backgroundColor: 'transparent',
+              gap: '6px',
               color: theme.colors.textSecondary,
-              fontFamily: theme.fonts.body,
+              fontFamily: theme.fonts.monospace,
               fontSize: theme.fontSizes[0],
-              cursor: 'pointer',
             }}
           >
-            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            {isExpanded ? 'Collapse' : 'Expand'}
-          </button>
-          {isExpanded && (
+            <GitBranch size={14} />
+            {pr.head?.ref ?? 'unknown'} → {pr.base?.ref ?? 'unknown'}
+          </span>
+          {/* Body */}
+          {pr.body && (
             <div
               style={{
                 color: theme.colors.textSecondary,
@@ -521,7 +520,7 @@ const PullRequestCard: React.FC<{
               {pr.body}
             </div>
           )}
-        </>
+        </div>
       )}
 
     </div>
