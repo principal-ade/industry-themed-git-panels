@@ -15,7 +15,7 @@ import type { PanelComponentProps } from '../types';
 import type { PullRequestsSliceData, PullRequestInfo } from '../types';
 import { formatDate } from '../utils/formatters';
 
-type FilterState = 'all' | 'open' | 'closed';
+type FilterState = 'open' | 'closed';
 
 /**
  * GitPullRequestsPanel - Displays pull requests from the 'pullRequests' slice.
@@ -56,7 +56,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
       // Tool: set filter
       events.on<{ filter: FilterState }>('git-panels.pull-requests:set-filter', (event) => {
         const newFilter = event.payload?.filter;
-        if (newFilter && ['all', 'open', 'closed'].includes(newFilter)) {
+        if (newFilter && ['open', 'closed'].includes(newFilter)) {
           setFilter(newFilter);
         }
       }),
@@ -67,9 +67,6 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
 
   // Filter pull requests
   const filteredPullRequests = useMemo(() => {
-    if (filter === 'all') {
-      return pullRequests;
-    }
     return pullRequests.filter((pr) => pr.state === filter);
   }, [filter, pullRequests]);
 
@@ -77,7 +74,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
   const counts = useMemo(() => {
     const open = pullRequests.filter((pr) => pr.state === 'open').length;
     const closed = pullRequests.filter((pr) => pr.state === 'closed').length;
-    return { open, closed, all: pullRequests.length };
+    return { open, closed };
   }, [pullRequests]);
 
   const handleRefresh = async () => {
@@ -102,7 +99,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    backgroundColor: theme.colors.backgroundSecondary,
+    backgroundColor: theme.colors.background,
     overflow: 'hidden',
   };
 
@@ -201,7 +198,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
           minHeight: '40px',
           padding: '0 12px',
           borderBottom: `1px solid ${theme.colors.border}`,
-          backgroundColor: theme.colors.backgroundSecondary,
+          backgroundColor: theme.colors.background,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -260,9 +257,9 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
           borderBottom: `1px solid ${theme.colors.border}`,
         }}
       >
-        {(['open', 'closed', 'all'] as const).map((value) => {
+        {(['open', 'closed'] as const).map((value) => {
           const isActive = filter === value;
-          const label = value === 'open' ? 'Open' : value === 'closed' ? 'Closed' : 'All';
+          const label = value === 'open' ? 'Open' : 'Closed';
 
           return (
             <button
@@ -317,7 +314,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
             <GitPullRequest size={32} style={{ marginBottom: '12px' }} />
             <div style={{ fontFamily: theme.fonts.heading, fontSize: theme.fontSizes[1], fontWeight: 600 }}>No pull requests found</div>
             <div style={{ marginTop: '4px', fontSize: theme.fontSizes[0] }}>
-              There are no {filter !== 'all' ? `${filter} ` : ''}pull requests to display.
+              There are no {filter} pull requests to display.
             </div>
           </div>
         ) : (
@@ -342,13 +339,6 @@ const PullRequestCard: React.FC<{
   const isMerged = pr.merged_at !== null;
   const isOpen = pr.state === 'open';
 
-  const badgeColor = isOpen
-    ? theme.colors.success || '#22c55e'
-    : isMerged
-      ? theme.colors.primary
-      : theme.colors.error || '#ef4444';
-  const badgeBg = `${badgeColor}22`;
-
   const totalComments = (pr.comments || 0) + (pr.review_comments || 0);
 
   return (
@@ -366,7 +356,7 @@ const PullRequestCard: React.FC<{
         border: `1px solid ${theme.colors.border}`,
         borderRadius: '12px',
         padding: '16px',
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.backgroundSecondary,
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
@@ -375,99 +365,62 @@ const PullRequestCard: React.FC<{
         minWidth: 0,
       }}
     >
-      {/* Header row: PR number + branch info | badges */}
+      {/* Header row: PR number + draft badge + branch info */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
           gap: '8px',
-          flexWrap: 'wrap',
           minWidth: 0,
+          overflow: 'hidden',
         }}
       >
-        <div
+        <span
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            minWidth: 0,
-            overflow: 'hidden',
-          }}
-        >
-          <span
-            style={{
-              fontFamily: theme.fonts.heading,
-              fontSize: theme.fontSizes[1],
-              fontWeight: 600,
-              color: theme.colors.textSecondary,
-              flexShrink: 0,
-            }}
-          >
-            #{pr.number}
-          </span>
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              color: theme.colors.textSecondary,
-              fontFamily: theme.fonts.monospace,
-              fontSize: theme.fontSizes[0],
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              minWidth: 0,
-            }}
-          >
-            <GitBranch size={14} style={{ flexShrink: 0 }} />
-            {pr.head?.ref ?? 'unknown'} → {pr.base?.ref ?? 'unknown'}
-          </span>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+            fontFamily: theme.fonts.heading,
+            fontSize: theme.fontSizes[1],
+            fontWeight: 600,
+            color: theme.colors.textSecondary,
             flexShrink: 0,
           }}
         >
+          #{pr.number}
+        </span>
+        {pr.draft && (
           <span
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
               padding: '4px 10px',
               borderRadius: '999px',
-              backgroundColor: badgeBg,
-              color: badgeColor,
+              backgroundColor: theme.colors.background,
+              color: theme.colors.textSecondary,
               fontFamily: theme.fonts.heading,
               fontSize: theme.fontSizes[0],
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.02em',
+              flexShrink: 0,
             }}
           >
-            {isOpen ? 'Open' : isMerged ? 'Merged' : 'Closed'}
+            Draft
           </span>
-          {pr.draft && (
-            <span
-              style={{
-                padding: '4px 10px',
-                borderRadius: '999px',
-                backgroundColor: theme.colors.backgroundSecondary,
-                color: theme.colors.textSecondary,
-                fontFamily: theme.fonts.heading,
-                fontSize: theme.fontSizes[0],
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.02em',
-              }}
-            >
-              Draft
-            </span>
-          )}
-        </div>
+        )}
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            color: theme.colors.textSecondary,
+            fontFamily: theme.fonts.monospace,
+            fontSize: theme.fontSizes[0],
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            minWidth: 0,
+          }}
+        >
+          <GitBranch size={14} style={{ flexShrink: 0 }} />
+          {pr.head?.ref ?? 'unknown'} → {pr.base?.ref ?? 'unknown'}
+        </span>
       </div>
 
       {/* Title */}
