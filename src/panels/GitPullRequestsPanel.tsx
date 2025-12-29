@@ -3,9 +3,9 @@ import { useTheme } from '@principal-ade/industry-theme';
 import {
   AlertCircle,
   Calendar,
-  ExternalLink,
+  ChevronDown,
+  ChevronUp,
   GitBranch,
-  GitMerge,
   GitPullRequest,
   Loader2,
   MessageSquare,
@@ -40,8 +40,6 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
   const hasPRs = context.hasSlice('pullRequests');
   const isLoading = context.isSliceLoading('pullRequests');
   const pullRequests = prSlice?.data?.pullRequests ?? [];
-  const owner = prSlice?.data?.owner;
-  const repo = prSlice?.data?.repo;
 
   // Subscribe to panel events
   useEffect(() => {
@@ -224,17 +222,6 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
         >
           <GitPullRequest size={14} />
           Pull Requests
-          {owner && repo && (
-            <span
-              style={{
-                fontWeight: 400,
-                textTransform: 'none',
-                opacity: 0.7,
-              }}
-            >
-              · {owner}/{repo}
-            </span>
-          )}
         </div>
 
         <button
@@ -351,6 +338,7 @@ const PullRequestCard: React.FC<{
   theme: ReturnType<typeof useTheme>['theme'];
   onClick?: () => void;
 }> = ({ pr, theme, onClick }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const isMerged = pr.merged_at !== null;
   const isOpen = pr.state === 'open';
 
@@ -384,42 +372,91 @@ const PullRequestCard: React.FC<{
         gap: '10px',
         cursor: onClick ? 'pointer' : 'default',
         transition: 'border-color 0.15s ease',
+        minWidth: 0,
       }}
     >
+      {/* Header row: PR number + branch info | badges */}
       <div
         style={{
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '12px',
+          gap: '8px',
+          flexWrap: 'wrap',
+          minWidth: 0,
         }}
       >
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
+            alignItems: 'center',
             gap: '8px',
-            flex: 1,
+            minWidth: 0,
+            overflow: 'hidden',
           }}
         >
-          {/* Status badge and title */}
-          <div
+          <span
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              flexWrap: 'wrap',
+              fontFamily: theme.fonts.heading,
+              fontSize: theme.fontSizes[1],
+              fontWeight: 600,
+              color: theme.colors.textSecondary,
+              flexShrink: 0,
             }}
           >
+            #{pr.number}
+          </span>
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              color: theme.colors.textSecondary,
+              fontFamily: theme.fonts.monospace,
+              fontSize: theme.fontSizes[0],
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              minWidth: 0,
+            }}
+          >
+            <GitBranch size={14} style={{ flexShrink: 0 }} />
+            {pr.head?.ref ?? 'unknown'} → {pr.base?.ref ?? 'unknown'}
+          </span>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            flexShrink: 0,
+          }}
+        >
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '999px',
+              backgroundColor: badgeBg,
+              color: badgeColor,
+              fontFamily: theme.fonts.heading,
+              fontSize: theme.fontSizes[0],
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.02em',
+            }}
+          >
+            {isOpen ? 'Open' : isMerged ? 'Merged' : 'Closed'}
+          </span>
+          {pr.draft && (
             <span
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
                 padding: '4px 10px',
                 borderRadius: '999px',
-                backgroundColor: badgeBg,
-                color: badgeColor,
+                backgroundColor: theme.colors.backgroundSecondary,
+                color: theme.colors.textSecondary,
                 fontFamily: theme.fonts.heading,
                 fontSize: theme.fontSizes[0],
                 fontWeight: 600,
@@ -427,168 +464,113 @@ const PullRequestCard: React.FC<{
                 letterSpacing: '0.02em',
               }}
             >
-              {isOpen ? 'Open' : isMerged ? 'Merged' : 'Closed'}
-              {pr.draft && (
-                <span
-                  style={{
-                    marginLeft: '6px',
-                    padding: '2px 6px',
-                    borderRadius: '8px',
-                    backgroundColor: theme.colors.backgroundSecondary,
-                    color: theme.colors.textSecondary,
-                    fontFamily: theme.fonts.body,
-                    fontSize: theme.fontSizes[0],
-                    fontWeight: 500,
-                    textTransform: 'capitalize',
-                  }}
-                >
-                  Draft
-                </span>
-              )}
+              Draft
             </span>
-            <span
-              style={{
-                fontFamily: theme.fonts.heading,
-                fontSize: theme.fontSizes[2],
-                fontWeight: 600,
-                color: theme.colors.text,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              #{pr.number} {pr.title}
-            </span>
-          </div>
+          )}
+        </div>
+      </div>
 
-          {/* Metadata row */}
-          <div
+      {/* Title */}
+      <div
+        style={{
+          fontFamily: theme.fonts.heading,
+          fontSize: theme.fontSizes[2],
+          fontWeight: 600,
+          color: theme.colors.text,
+          lineHeight: 1.3,
+          wordBreak: 'break-word',
+        }}
+      >
+        {pr.title}
+      </div>
+
+      {/* Metadata row */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px 12px',
+          flexWrap: 'wrap',
+          color: theme.colors.textSecondary,
+          fontFamily: theme.fonts.body,
+          fontSize: theme.fontSizes[0],
+        }}
+      >
+        <span>by {pr.user?.login ?? 'unknown'}</span>
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <Calendar size={12} /> {formatDate(pr.created_at)}
+        </span>
+        {!isOpen && (
+          <span
             style={{
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: '12px',
-              flexWrap: 'wrap',
+              gap: '4px',
+            }}
+          >
+            {isMerged ? 'Merged' : 'Closed'} {formatDate(pr.merged_at || pr.updated_at)}
+          </span>
+        )}
+        {totalComments > 0 && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <MessageSquare size={12} /> {totalComments}
+          </span>
+        )}
+      </div>
+
+      {/* Expand button + Body preview */}
+      {pr.body && (
+        <>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsExpanded(!isExpanded);
+            }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: 0,
+              border: 'none',
+              backgroundColor: 'transparent',
               color: theme.colors.textSecondary,
               fontFamily: theme.fonts.body,
               fontSize: theme.fontSizes[0],
+              cursor: 'pointer',
             }}
           >
-            <span>by {pr.user?.login ?? 'unknown'}</span>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
-            >
-              <Calendar size={12} /> Opened {formatDate(pr.created_at)}
-            </span>
-            {!isOpen && (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
-              >
-                {isMerged ? 'Merged' : 'Closed'} {formatDate(pr.merged_at || pr.updated_at)}
-              </span>
-            )}
-            {totalComments > 0 && (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
-              >
-                <MessageSquare size={12} /> {totalComments} comment
-                {totalComments === 1 ? '' : 's'}
-              </span>
-            )}
-          </div>
-
-          {/* Branch info */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: theme.colors.textSecondary,
-              fontFamily: theme.fonts.monospace,
-              fontSize: theme.fontSizes[0],
-            }}
-          >
-            <GitBranch size={14} />
-            <span>
-              {pr.base?.ref ?? 'unknown'}{' '}
-              <span style={{ opacity: 0.6 }}>←</span>{' '}
-              {pr.head?.ref ?? 'unknown'}
-            </span>
-          </div>
-
-          {/* Body preview */}
-          {pr.body && (
+            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {isExpanded ? 'Collapse' : 'Expand'}
+          </button>
+          {isExpanded && (
             <div
               style={{
-                marginTop: '4px',
                 color: theme.colors.textSecondary,
                 fontFamily: theme.fonts.body,
                 fontSize: theme.fontSizes[1],
                 lineHeight: 1.5,
-                maxHeight: '72px',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                wordBreak: 'break-word',
               }}
             >
               {pr.body}
             </div>
           )}
-        </div>
-
-        {/* View button */}
-        <a
-          href={pr.html_url}
-          target="_blank"
-          rel="noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '6px 10px',
-            borderRadius: '6px',
-            border: `1px solid ${theme.colors.border}`,
-            backgroundColor: theme.colors.backgroundSecondary,
-            color: theme.colors.text,
-            textDecoration: 'none',
-            fontFamily: theme.fonts.body,
-            fontSize: theme.fontSizes[1],
-            fontWeight: 600,
-            whiteSpace: 'nowrap',
-          }}
-        >
-          View
-          <ExternalLink size={14} />
-        </a>
-      </div>
-
-      {/* Merged info */}
-      {isMerged && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontFamily: theme.fonts.monospace,
-            fontSize: theme.fontSizes[0],
-            color: theme.colors.primary,
-          }}
-        >
-          <GitMerge size={14} /> Merged into {pr.base?.ref ?? 'base'} from{' '}
-          {pr.head?.ref ?? 'head'}
-        </div>
+        </>
       )}
+
     </div>
   );
 };
