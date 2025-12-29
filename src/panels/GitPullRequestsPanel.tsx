@@ -90,6 +90,16 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
     }
   };
 
+  // Emit selection event when PR card is clicked
+  const handlePRClick = (pr: PullRequestInfo) => {
+    events.emit({
+      type: 'git-panels.pull-request:selected',
+      source: 'git-panels.pull-requests',
+      timestamp: Date.now(),
+      payload: { pr },
+    });
+  };
+
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
@@ -325,7 +335,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
           </div>
         ) : (
           filteredPullRequests.map((pr) => (
-            <PullRequestCard key={pr.id} pr={pr} theme={theme} />
+            <PullRequestCard key={pr.id} pr={pr} theme={theme} onClick={() => handlePRClick(pr)} />
           ))
         )}
       </div>
@@ -339,7 +349,8 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
 const PullRequestCard: React.FC<{
   pr: PullRequestInfo;
   theme: ReturnType<typeof useTheme>['theme'];
-}> = ({ pr, theme }) => {
+  onClick?: () => void;
+}> = ({ pr, theme, onClick }) => {
   const isMerged = pr.merged_at !== null;
   const isOpen = pr.state === 'open';
 
@@ -354,6 +365,15 @@ const PullRequestCard: React.FC<{
 
   return (
     <div
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
       style={{
         border: `1px solid ${theme.colors.border}`,
         borderRadius: '12px',
@@ -362,6 +382,8 @@ const PullRequestCard: React.FC<{
         display: 'flex',
         flexDirection: 'column',
         gap: '10px',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'border-color 0.15s ease',
       }}
     >
       <div
@@ -529,6 +551,7 @@ const PullRequestCard: React.FC<{
           href={pr.html_url}
           target="_blank"
           rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
           style={{
             display: 'inline-flex',
             alignItems: 'center',

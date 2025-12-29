@@ -175,6 +175,81 @@ export const pullRequestsToolsMetadata: PanelToolsMetadata = {
 };
 
 // ============================================================================
+// Pull Request Detail Panel Tools
+// ============================================================================
+
+/**
+ * Tool: Select Pull Request
+ */
+export const selectPullRequestTool: PanelTool = {
+  name: 'select_pull_request',
+  description: 'Selects a pull request to display in the detail panel',
+  inputs: {
+    type: 'object',
+    properties: {
+      pr: {
+        type: 'object',
+        description: 'The pull request object to display',
+      },
+    },
+    required: ['pr'],
+  },
+  outputs: {
+    type: 'object',
+    properties: {
+      success: { type: 'boolean' },
+      message: { type: 'string' },
+    },
+  },
+  tags: ['git', 'pull-requests', 'detail', 'select'],
+  tool_call_template: {
+    call_template_type: 'panel_event',
+    event_type: 'git-panels.pull-request:selected',
+  },
+};
+
+/**
+ * Tool: Deselect Pull Request
+ */
+export const deselectPullRequestTool: PanelTool = {
+  name: 'deselect_pull_request',
+  description: 'Clears the current pull request selection',
+  inputs: {
+    type: 'object',
+    properties: {},
+  },
+  outputs: {
+    type: 'object',
+    properties: {
+      success: { type: 'boolean' },
+    },
+  },
+  tags: ['git', 'pull-requests', 'detail', 'deselect'],
+  tool_call_template: {
+    call_template_type: 'panel_event',
+    event_type: 'git-panels.pull-request:deselected',
+  },
+};
+
+/**
+ * All pull request detail panel tools
+ */
+export const pullRequestDetailTools: PanelTool[] = [
+  selectPullRequestTool,
+  deselectPullRequestTool,
+];
+
+/**
+ * Pull request detail panel tools metadata
+ */
+export const pullRequestDetailToolsMetadata: PanelToolsMetadata = {
+  id: 'git-panels.pull-request-detail',
+  name: 'Pull Request Details',
+  description: 'Tools for the pull request detail panel',
+  tools: pullRequestDetailTools,
+};
+
+// ============================================================================
 // Combined Exports
 // ============================================================================
 
@@ -184,4 +259,5 @@ export const pullRequestsToolsMetadata: PanelToolsMetadata = {
 export const allGitPanelTools: PanelTool[] = [
   ...commitHistoryTools,
   ...pullRequestsTools,
+  ...pullRequestDetailTools,
 ];

@@ -1,11 +1,14 @@
 import { GitCommitHistoryPanel } from './panels/GitCommitHistoryPanel';
 import { GitPullRequestsPanel } from './panels/GitPullRequestsPanel';
+import { GitPullRequestDetailPanel } from './panels/GitPullRequestDetailPanel';
 import type { PanelDefinition, PanelContextValue } from './types';
 import {
   commitHistoryTools,
   commitHistoryToolsMetadata,
   pullRequestsTools,
   pullRequestsToolsMetadata,
+  pullRequestDetailTools,
+  pullRequestDetailToolsMetadata,
 } from './tools';
 
 /**
@@ -53,6 +56,19 @@ export const panels: PanelDefinition[] = [
       }
     },
   },
+  {
+    metadata: {
+      id: 'git-panels.pull-request-detail',
+      name: 'Pull Request Details',
+      icon: 'file-text',
+      version: '0.1.0',
+      author: 'Principal ADE',
+      description: 'View detailed pull request information and description',
+      slices: [], // No slices - receives data via events
+      tools: pullRequestDetailTools,
+    },
+    component: GitPullRequestDetailPanel,
+  },
 ];
 
 /**
@@ -84,6 +100,11 @@ export {
   pullRequestsToolsMetadata,
   refreshPullRequestsTool,
   setPRFilterTool,
+  // Pull request detail tools
+  pullRequestDetailTools,
+  pullRequestDetailToolsMetadata,
+  selectPullRequestTool,
+  deselectPullRequestTool,
   // All tools
   allGitPanelTools,
 } from './tools';
@@ -105,3 +126,4 @@ export type {
  */
 export { GitCommitHistoryPanel, GitCommitHistoryPanelPreview } from './panels/GitCommitHistoryPanel';
 export { GitPullRequestsPanel, GitPullRequestsPanelPreview } from './panels/GitPullRequestsPanel';
+export { GitPullRequestDetailPanel, GitPullRequestDetailPanelPreview } from './panels/GitPullRequestDetailPanel';
