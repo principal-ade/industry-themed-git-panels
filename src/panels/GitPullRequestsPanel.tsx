@@ -31,6 +31,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
 }) => {
   const { theme } = useTheme();
   const [filter, setFilter] = useState<FilterState>('open');
+  const [selectedPrId, setSelectedPrId] = useState<number | null>(null);
 
   // Get pull requests from the slice
   const prSlice = context.getSlice<PullRequestsSliceData>('pullRequests');
@@ -84,6 +85,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
 
   // Emit selection event when PR card is clicked
   const handlePRClick = (pr: PullRequestInfo) => {
+    setSelectedPrId(pr.id);
     events.emit({
       type: 'git-panels.pull-request:selected',
       source: 'git-panels.pull-requests',
@@ -318,7 +320,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
           </div>
         ) : (
           filteredPullRequests.map((pr) => (
-            <PullRequestCard key={pr.id} pr={pr} theme={theme} onClick={() => handlePRClick(pr)} />
+            <PullRequestCard key={pr.id} pr={pr} theme={theme} isSelected={selectedPrId === pr.id} onClick={() => handlePRClick(pr)} />
           ))
         )}
       </div>
@@ -332,8 +334,11 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
 const PullRequestCard: React.FC<{
   pr: PullRequestInfo;
   theme: ReturnType<typeof useTheme>['theme'];
+  isSelected?: boolean;
   onClick?: () => void;
-}> = ({ pr, theme, onClick }) => {
+}> = ({ pr, theme, isSelected, onClick }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const isActive = isHovered || isSelected;
   const isMerged = pr.merged_at !== null;
   const isOpen = pr.state === 'open';
 
@@ -350,48 +355,33 @@ const PullRequestCard: React.FC<{
           onClick?.();
         }
       }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         borderBottom: `1px solid ${theme.colors.border}`,
-        padding: '12px 16px',
-        backgroundColor: theme.colors.backgroundSecondary,
+        padding: '16px 16px',
+        backgroundColor: isActive ? theme.colors.background : theme.colors.backgroundSecondary,
         display: 'flex',
         flexDirection: 'column',
         gap: '8px',
         cursor: onClick ? 'pointer' : 'default',
         minWidth: 0,
+        transition: 'background-color 0.15s ease',
       }}
     >
-      {/* Title row: PR number + title */}
+      {/* Title row */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          gap: '8px',
+          fontFamily: theme.fonts.heading,
+          fontSize: theme.fontSizes[2],
+          fontWeight: 600,
+          color: isActive ? theme.colors.primary : theme.colors.text,
+          lineHeight: 1.3,
+          wordBreak: 'break-word',
+          transition: 'color 0.15s ease',
         }}
       >
-        <span
-          style={{
-            fontFamily: theme.fonts.heading,
-            fontSize: theme.fontSizes[1],
-            fontWeight: 600,
-            color: theme.colors.textSecondary,
-            flexShrink: 0,
-          }}
-        >
-          #{pr.number}
-        </span>
-        <span
-          style={{
-            fontFamily: theme.fonts.heading,
-            fontSize: theme.fontSizes[2],
-            fontWeight: 600,
-            color: theme.colors.text,
-            lineHeight: 1.3,
-            wordBreak: 'break-word',
-          }}
-        >
-          {pr.title}
-        </span>
+        {pr.title}
       </div>
 
       {/* Metadata row */}
@@ -423,6 +413,15 @@ const PullRequestCard: React.FC<{
             Draft
           </span>
         )}
+        <span
+          style={{
+            fontFamily: theme.fonts.heading,
+            fontWeight: 600,
+            color: theme.colors.textSecondary,
+          }}
+        >
+          #{pr.number}
+        </span>
         <span>by {pr.user?.login ?? 'unknown'}</span>
         <span
           style={{
