@@ -1,10 +1,13 @@
 import { GitCommitHistoryPanel } from './panels/GitCommitHistoryPanel';
+import { GitCommitDetailPanel } from './panels/GitCommitDetailPanel';
 import { GitPullRequestsPanel } from './panels/GitPullRequestsPanel';
 import { GitPullRequestDetailPanel } from './panels/GitPullRequestDetailPanel';
 import type { PanelDefinition, PanelContextValue } from './types';
 import {
   commitHistoryTools,
   commitHistoryToolsMetadata,
+  commitDetailTools,
+  commitDetailToolsMetadata,
   pullRequestsTools,
   pullRequestsToolsMetadata,
   pullRequestDetailTools,
@@ -35,6 +38,19 @@ export const panels: PanelDefinition[] = [
         await context.refresh('repository', 'commits');
       }
     },
+  },
+  {
+    metadata: {
+      id: 'git-panels.commit-detail',
+      name: 'Commit Details',
+      icon: 'git-commit',
+      version: '0.1.0',
+      author: 'Principal ADE',
+      description: 'View detailed commit information with files changed',
+      slices: [], // No slices - receives data via events from host
+      tools: commitDetailTools,
+    },
+    component: GitCommitDetailPanel,
   },
   {
     metadata: {
@@ -95,6 +111,11 @@ export {
   commitHistoryToolsMetadata,
   refreshCommitsTool,
   setCommitLimitTool,
+  // Commit detail tools
+  commitDetailTools,
+  commitDetailToolsMetadata,
+  selectCommitTool,
+  deselectCommitTool,
   // Pull request tools
   pullRequestsTools,
   pullRequestsToolsMetadata,
@@ -114,6 +135,9 @@ export {
  */
 export type {
   GitCommitInfo,
+  GitCommitDetail,
+  CommitFile,
+  CommitStats,
   CommitsSliceData,
   PullRequestInfo,
   PullRequestsSliceData,
@@ -125,5 +149,6 @@ export type {
  * Export panel components for direct use
  */
 export { GitCommitHistoryPanel, GitCommitHistoryPanelPreview } from './panels/GitCommitHistoryPanel';
+export { GitCommitDetailPanel, GitCommitDetailPanelPreview } from './panels/GitCommitDetailPanel';
 export { GitPullRequestsPanel, GitPullRequestsPanelPreview } from './panels/GitPullRequestsPanel';
 export { GitPullRequestDetailPanel, GitPullRequestDetailPanelPreview } from './panels/GitPullRequestDetailPanel';

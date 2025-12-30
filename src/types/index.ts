@@ -70,6 +70,61 @@ export interface CommitsSliceData {
   commits: GitCommitInfo[];
 }
 
+/**
+ * File changed in a commit (from single commit API).
+ */
+export interface CommitFile {
+  /** File path */
+  filename: string;
+  /** Change status: added, removed, modified, renamed, etc. */
+  status: string;
+  /** Lines added */
+  additions: number;
+  /** Lines deleted */
+  deletions: number;
+  /** Total changes */
+  changes: number;
+  /** Previous filename (for renames) */
+  previous_filename?: string;
+}
+
+/**
+ * Commit stats (from single commit API).
+ */
+export interface CommitStats {
+  /** Total lines changed */
+  total: number;
+  /** Lines added */
+  additions: number;
+  /** Lines deleted */
+  deletions: number;
+}
+
+/**
+ * Full commit detail (from single commit API endpoint).
+ * This is richer than GitCommitInfo which comes from the list endpoint.
+ */
+export interface GitCommitDetail {
+  /** Full commit hash */
+  hash: string;
+  /** Commit message (may be multiline) */
+  message: string;
+  /** Author name */
+  author: string;
+  /** Author email */
+  authorEmail?: string;
+  /** ISO date string of when the commit was made */
+  date: string;
+  /** URL to view on GitHub */
+  htmlUrl?: string;
+  /** Commit stats (additions, deletions, total) */
+  stats?: CommitStats;
+  /** Files changed in this commit */
+  files?: CommitFile[];
+  /** Parent commit hashes */
+  parents?: string[];
+}
+
 // ============================================================================
 // Pull Request Types
 // ============================================================================

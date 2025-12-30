@@ -200,7 +200,20 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
 
         {/* Commit list */}
         {sortedCommits.map((commit) => (
-          <CommitCard key={commit.hash} commit={commit} theme={theme} />
+          <CommitCard
+            key={commit.hash}
+            commit={commit}
+            theme={theme}
+            onClick={() => {
+              // Emit selection event with hash - host will fetch full details
+              events.emit({
+                type: 'git-panels.commit:selected',
+                source: 'git-panels.commit-history',
+                timestamp: Date.now(),
+                payload: { hash: commit.hash },
+              });
+            }}
+          />
         ))}
       </div>
     </div>
@@ -213,12 +226,14 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
 const CommitCard: React.FC<{
   commit: GitCommitInfo;
   theme: ReturnType<typeof useTheme>['theme'];
-}> = ({ commit, theme }) => {
+  onClick?: () => void;
+}> = ({ commit, theme, onClick }) => {
   const firstLine = commit.message.split('\n')[0];
   const relative = formatRelativeTime(commit.date);
 
   return (
     <div
+      onClick={onClick}
       style={{
         padding: '12px',
         backgroundColor: theme.colors.background,
@@ -227,6 +242,16 @@ const CommitCard: React.FC<{
         display: 'flex',
         flexDirection: 'column',
         gap: '6px',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'border-color 0.15s ease',
+      }}
+      onMouseEnter={(e) => {
+        if (onClick) {
+          e.currentTarget.style.borderColor = theme.colors.primary;
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = theme.colors.border;
       }}
     >
       <div

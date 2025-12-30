@@ -250,6 +250,81 @@ export const pullRequestDetailToolsMetadata: PanelToolsMetadata = {
 };
 
 // ============================================================================
+// Commit Detail Panel Tools
+// ============================================================================
+
+/**
+ * Tool: Select Commit (for programmatic selection)
+ */
+export const selectCommitTool: PanelTool = {
+  name: 'select_commit',
+  description: 'Selects a commit to display in the detail panel (triggers host to fetch full details)',
+  inputs: {
+    type: 'object',
+    properties: {
+      hash: {
+        type: 'string',
+        description: 'The commit hash to select',
+      },
+    },
+    required: ['hash'],
+  },
+  outputs: {
+    type: 'object',
+    properties: {
+      success: { type: 'boolean' },
+      message: { type: 'string' },
+    },
+  },
+  tags: ['git', 'commits', 'detail', 'select'],
+  tool_call_template: {
+    call_template_type: 'panel_event',
+    event_type: 'git-panels.commit:selected',
+  },
+};
+
+/**
+ * Tool: Deselect Commit
+ */
+export const deselectCommitTool: PanelTool = {
+  name: 'deselect_commit',
+  description: 'Clears the current commit selection',
+  inputs: {
+    type: 'object',
+    properties: {},
+  },
+  outputs: {
+    type: 'object',
+    properties: {
+      success: { type: 'boolean' },
+    },
+  },
+  tags: ['git', 'commits', 'detail', 'deselect'],
+  tool_call_template: {
+    call_template_type: 'panel_event',
+    event_type: 'git-panels.commit:deselected',
+  },
+};
+
+/**
+ * All commit detail panel tools
+ */
+export const commitDetailTools: PanelTool[] = [
+  selectCommitTool,
+  deselectCommitTool,
+];
+
+/**
+ * Commit detail panel tools metadata
+ */
+export const commitDetailToolsMetadata: PanelToolsMetadata = {
+  id: 'git-panels.commit-detail',
+  name: 'Commit Details',
+  description: 'Tools for the commit detail panel',
+  tools: commitDetailTools,
+};
+
+// ============================================================================
 // Combined Exports
 // ============================================================================
 
@@ -260,4 +335,5 @@ export const allGitPanelTools: PanelTool[] = [
   ...commitHistoryTools,
   ...pullRequestsTools,
   ...pullRequestDetailTools,
+  ...commitDetailTools,
 ];
