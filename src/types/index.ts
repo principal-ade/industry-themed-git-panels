@@ -128,6 +128,12 @@ export interface PullRequestInfo {
   comments?: number;
   /** Number of review comments */
   review_comments?: number;
+  /** Number of files changed */
+  changed_files?: number;
+  /** Number of lines added */
+  additions?: number;
+  /** Number of lines deleted */
+  deletions?: number;
 }
 
 /**

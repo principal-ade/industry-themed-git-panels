@@ -5,6 +5,7 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
+  FileText,
   GitBranch,
   GitPullRequest,
   Loader2,
@@ -421,6 +422,17 @@ const PullRequestCard: React.FC<{
             }}
           >
             Draft
+          </span>
+        )}
+        {pr.changed_files != null && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            <FileText size={12} /> {pr.changed_files} {pr.changed_files === 1 ? 'file' : 'files'}
           </span>
         )}
         <span>by {pr.user?.login ?? 'unknown'}</span>
