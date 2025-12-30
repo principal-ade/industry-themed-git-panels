@@ -296,10 +296,8 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '16px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px',
         }}
       >
         {filteredPullRequests.length === 0 ? (
@@ -353,15 +351,13 @@ const PullRequestCard: React.FC<{
         }
       }}
       style={{
-        border: `1px solid ${theme.colors.border}`,
-        borderRadius: '12px',
-        padding: '16px',
+        borderBottom: `1px solid ${theme.colors.border}`,
+        padding: '12px 16px',
         backgroundColor: theme.colors.backgroundSecondary,
         display: 'flex',
         flexDirection: 'column',
-        gap: '10px',
+        gap: '8px',
         cursor: onClick ? 'pointer' : 'default',
-        transition: 'border-color 0.15s ease',
         minWidth: 0,
       }}
     >
