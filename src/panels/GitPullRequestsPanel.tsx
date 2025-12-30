@@ -3,9 +3,6 @@ import { useTheme } from '@principal-ade/industry-theme';
 import {
   AlertCircle,
   Calendar,
-  ChevronDown,
-  ChevronUp,
-  GitBranch,
   GitPullRequest,
   Loader2,
   MessageSquare,
@@ -191,6 +188,7 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
 
   return (
     <div style={containerStyle}>
+      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
       {/* Header - 40px total including border */}
       <div
         style={{
@@ -298,7 +296,10 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
           overflowY: 'auto',
           display: 'flex',
           flexDirection: 'column',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
         }}
+        className="hide-scrollbar"
       >
         {filteredPullRequests.length === 0 ? (
           <div
@@ -333,7 +334,6 @@ const PullRequestCard: React.FC<{
   theme: ReturnType<typeof useTheme>['theme'];
   onClick?: () => void;
 }> = ({ pr, theme, onClick }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const isMerged = pr.merged_at !== null;
   const isOpen = pr.state === 'open';
 
@@ -456,69 +456,6 @@ const PullRequestCard: React.FC<{
           </span>
         )}
       </div>
-
-      {/* Expand button + details */}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsExpanded(!isExpanded);
-        }}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '4px',
-          padding: 0,
-          border: 'none',
-          backgroundColor: 'transparent',
-          color: theme.colors.textSecondary,
-          fontFamily: theme.fonts.body,
-          fontSize: theme.fontSizes[0],
-          cursor: 'pointer',
-        }}
-      >
-        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        {isExpanded ? 'Collapse' : 'Expand'}
-      </button>
-      {isExpanded && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-          }}
-        >
-          {/* Branch info */}
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              color: theme.colors.textSecondary,
-              fontFamily: theme.fonts.monospace,
-              fontSize: theme.fontSizes[0],
-            }}
-          >
-            <GitBranch size={14} />
-            {pr.head?.ref ?? 'unknown'} → {pr.base?.ref ?? 'unknown'}
-          </span>
-          {/* Body */}
-          {pr.body && (
-            <div
-              style={{
-                color: theme.colors.textSecondary,
-                fontFamily: theme.fonts.body,
-                fontSize: theme.fontSizes[1],
-                lineHeight: 1.5,
-                wordBreak: 'break-word',
-              }}
-            >
-              {pr.body}
-            </div>
-          )}
-        </div>
-      )}
-
     </div>
   );
 };

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ThemeProvider, useTheme } from '@principal-ade/industry-theme';
+import { useTheme } from '@principal-ade/industry-theme';
 import { DocumentView } from 'themed-markdown';
 import {
   ExternalLink,
   FileText,
-  GitBranch,
-  GitMerge,
   GitPullRequest,
   MessageSquare,
   X,
@@ -179,7 +177,6 @@ const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
             textTransform: 'uppercase',
           }}
         >
-          {isMerged ? <GitMerge size={12} /> : <GitPullRequest size={12} />}
           {statusLabel}
           {selectedPR.draft && (
             <span
@@ -206,13 +203,43 @@ const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
             alignItems: 'center',
             gap: '6px',
             color: theme.colors.textSecondary,
-            fontFamily: theme.fonts.monospace,
             fontSize: theme.fontSizes[0],
           }}
         >
-          <GitBranch size={14} />
-          {selectedPR.base?.ref ?? '?'} ← {selectedPR.head?.ref ?? '?'}
+          {isOpen && <span style={{ fontFamily: theme.fonts.body }}>on</span>}
+          <span style={{ fontFamily: theme.fonts.monospace, color: theme.colors.primary }}>{selectedPR.head?.ref ?? '?'}</span>
+          <span style={{ fontFamily: theme.fonts.body }}>{isOpen ? 'merging into' : 'into'}</span>
+          <span style={{ fontFamily: theme.fonts.monospace, color: theme.colors.primary }}>{selectedPR.base?.ref ?? '?'}</span>
         </span>
+
+        {/* Merged/Closed date */}
+        {!isOpen && (
+          <span
+            style={{
+              color: theme.colors.textSecondary,
+              fontSize: theme.fontSizes[0],
+              fontFamily: theme.fonts.body,
+            }}
+          >
+            {formatDate(selectedPR.merged_at || selectedPR.closed_at || selectedPR.updated_at)}
+          </span>
+        )}
+
+        {/* Comments */}
+        {totalComments > 0 && (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              color: theme.colors.textSecondary,
+              fontSize: theme.fontSizes[0],
+            }}
+          >
+            <MessageSquare size={12} />
+            {totalComments}
+          </span>
+        )}
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
@@ -286,41 +313,6 @@ const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
           {selectedPR.title}
         </h1>
 
-        {/* Metadata grid */}
-        {(totalComments > 0 || !isOpen) && (
-          <div
-            style={{
-              display: 'flex',
-              gap: '16px',
-              marginBottom: '20px',
-              padding: '12px',
-              backgroundColor: theme.colors.backgroundSecondary,
-              borderRadius: '8px',
-              border: `1px solid ${theme.colors.border}`,
-            }}
-          >
-            {/* Comments */}
-            {totalComments > 0 && (
-              <MetadataRow
-                icon={<MessageSquare size={14} />}
-                label="Comments"
-                value={String(totalComments)}
-                theme={theme}
-              />
-            )}
-
-            {/* Merged/Closed date */}
-            {!isOpen && (
-              <MetadataRow
-                icon={isMerged ? <GitMerge size={14} /> : <GitPullRequest size={14} />}
-                label={isMerged ? 'Merged' : 'Closed'}
-                value={formatDate(selectedPR.merged_at || selectedPR.closed_at || selectedPR.updated_at)}
-                theme={theme}
-              />
-            )}
-          </div>
-        )}
-
         {/* Body - markdown rendered */}
         <div
           style={{
@@ -356,48 +348,9 @@ const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
 };
 
 /**
- * Metadata row component for displaying label/value pairs with icons
+ * Main panel component
  */
-const MetadataRow: React.FC<{
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  mono?: boolean;
-  theme: ReturnType<typeof useTheme>['theme'];
-}> = ({ icon, label, value, mono, theme }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      fontFamily: theme.fonts.body,
-      fontSize: theme.fontSizes[0],
-    }}
-  >
-    <span style={{ color: theme.colors.textMuted }}>{icon}</span>
-    <span style={{ color: theme.colors.textSecondary }}>{label}:</span>
-    <span
-      style={{
-        color: theme.colors.text,
-        fontFamily: mono ? theme.fonts.monospace : theme.fonts.body,
-        fontWeight: 500,
-      }}
-    >
-      {value}
-    </span>
-  </div>
-);
-
-/**
- * Main panel component wrapped with ThemeProvider
- */
-export const GitPullRequestDetailPanel: React.FC<PanelComponentProps> = (props) => {
-  return (
-    <ThemeProvider>
-      <GitPullRequestDetailPanelContent {...props} />
-    </ThemeProvider>
-  );
-};
+export const GitPullRequestDetailPanel = GitPullRequestDetailPanelContent;
 
 /**
  * Preview component for panel configuration UI
