@@ -2,15 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { ThemeProvider, useTheme } from '@principal-ade/industry-theme';
 import { DocumentView } from 'themed-markdown';
 import {
-  ArrowLeft,
-  Calendar,
   ExternalLink,
   FileText,
   GitBranch,
   GitMerge,
   GitPullRequest,
   MessageSquare,
-  User,
+  X,
 } from 'lucide-react';
 import type { PanelComponentProps, PullRequestInfo } from '../types';
 import { formatDate } from '../utils/formatters';
@@ -154,28 +152,6 @@ const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
           boxSizing: 'border-box',
         }}
       >
-        {/* Back button */}
-        <button
-          type="button"
-          onClick={handleBack}
-          title="Back to list"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '28px',
-            height: '28px',
-            padding: 0,
-            border: `1px solid ${theme.colors.border}`,
-            borderRadius: '6px',
-            backgroundColor: theme.colors.background,
-            color: theme.colors.textSecondary,
-            cursor: 'pointer',
-          }}
-        >
-          <ArrowLeft size={16} />
-        </button>
-
         {/* PR number */}
         <span
           style={{
@@ -223,6 +199,21 @@ const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
           )}
         </span>
 
+        {/* Branch info */}
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            color: theme.colors.textSecondary,
+            fontFamily: theme.fonts.monospace,
+            fontSize: theme.fontSizes[0],
+          }}
+        >
+          <GitBranch size={14} />
+          {selectedPR.base?.ref ?? '?'} ← {selectedPR.head?.ref ?? '?'}
+        </span>
+
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
@@ -248,6 +239,28 @@ const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
         >
           <ExternalLink size={14} />
         </a>
+
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={handleBack}
+          title="Close"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '28px',
+            height: '28px',
+            padding: 0,
+            border: `1px solid ${theme.colors.border}`,
+            borderRadius: '6px',
+            backgroundColor: theme.colors.background,
+            color: theme.colors.textSecondary,
+            cursor: 'pointer',
+          }}
+        >
+          <X size={16} />
+        </button>
       </div>
 
       {/* Content area - scrollable */}
@@ -274,65 +287,39 @@ const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
         </h1>
 
         {/* Metadata grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '12px',
-            marginBottom: '20px',
-            padding: '12px',
-            backgroundColor: theme.colors.backgroundSecondary,
-            borderRadius: '8px',
-            border: `1px solid ${theme.colors.border}`,
-          }}
-        >
-          {/* Author */}
-          {selectedPR.user && (
-            <MetadataRow
-              icon={<User size={14} />}
-              label="Author"
-              value={selectedPR.user.login}
-              theme={theme}
-            />
-          )}
+        {(totalComments > 0 || !isOpen) && (
+          <div
+            style={{
+              display: 'flex',
+              gap: '16px',
+              marginBottom: '20px',
+              padding: '12px',
+              backgroundColor: theme.colors.backgroundSecondary,
+              borderRadius: '8px',
+              border: `1px solid ${theme.colors.border}`,
+            }}
+          >
+            {/* Comments */}
+            {totalComments > 0 && (
+              <MetadataRow
+                icon={<MessageSquare size={14} />}
+                label="Comments"
+                value={String(totalComments)}
+                theme={theme}
+              />
+            )}
 
-          {/* Branch info */}
-          <MetadataRow
-            icon={<GitBranch size={14} />}
-            label="Branch"
-            value={`${selectedPR.base?.ref ?? '?'} ← ${selectedPR.head?.ref ?? '?'}`}
-            mono
-            theme={theme}
-          />
-
-          {/* Created date */}
-          <MetadataRow
-            icon={<Calendar size={14} />}
-            label="Created"
-            value={formatDate(selectedPR.created_at)}
-            theme={theme}
-          />
-
-          {/* Comments */}
-          {totalComments > 0 && (
-            <MetadataRow
-              icon={<MessageSquare size={14} />}
-              label="Comments"
-              value={String(totalComments)}
-              theme={theme}
-            />
-          )}
-
-          {/* Merged/Closed date */}
-          {!isOpen && (
-            <MetadataRow
-              icon={isMerged ? <GitMerge size={14} /> : <GitPullRequest size={14} />}
-              label={isMerged ? 'Merged' : 'Closed'}
-              value={formatDate(selectedPR.merged_at || selectedPR.closed_at || selectedPR.updated_at)}
-              theme={theme}
-            />
-          )}
-        </div>
+            {/* Merged/Closed date */}
+            {!isOpen && (
+              <MetadataRow
+                icon={isMerged ? <GitMerge size={14} /> : <GitPullRequest size={14} />}
+                label={isMerged ? 'Merged' : 'Closed'}
+                value={formatDate(selectedPR.merged_at || selectedPR.closed_at || selectedPR.updated_at)}
+                theme={theme}
+              />
+            )}
+          </div>
+        )}
 
         {/* Body - markdown rendered */}
         <div
