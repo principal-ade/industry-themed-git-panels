@@ -120,7 +120,6 @@ export {
   pullRequestsTools,
   pullRequestsToolsMetadata,
   refreshPullRequestsTool,
-  setPRFilterTool,
   // Pull request detail tools
   pullRequestDetailTools,
   pullRequestDetailToolsMetadata,

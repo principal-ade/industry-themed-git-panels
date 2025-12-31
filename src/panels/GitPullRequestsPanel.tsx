@@ -12,16 +12,13 @@ import type { PanelComponentProps } from '../types';
 import type { PullRequestsSliceData, PullRequestInfo } from '../types';
 import { formatDate } from '../utils/formatters';
 
-type FilterState = 'open' | 'closed';
-
 /**
- * GitPullRequestsPanel - Displays pull requests from the 'pullRequests' slice.
+ * GitPullRequestsPanel - Displays open pull requests from the 'pullRequests' slice.
  *
  * This panel expects the host to provide PR data through:
  * - context.getSlice<PullRequestsSliceData>('pullRequests')
  *
  * The panel supports:
- * - Filtering by state (all, open, closed)
  * - Refresh via context.refresh()
  * - Tool events for programmatic interaction
  */
@@ -30,8 +27,8 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
   events,
 }) => {
   const { theme } = useTheme();
-  const [filter, setFilter] = useState<FilterState>('open');
   const [selectedPrId, setSelectedPrId] = useState<number | null>(null);
+  const [showDrafts, setShowDrafts] = useState(false);
 
   // Get pull requests from the slice
   const prSlice = context.getSlice<PullRequestsSliceData>('pullRequests');
@@ -50,29 +47,23 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
           console.error('[GitPullRequestsPanel] Refresh failed:', error);
         }
       }),
-
-      // Tool: set filter
-      events.on<{ filter: FilterState }>('git-panels.pull-requests:set-filter', (event) => {
-        const newFilter = event.payload?.filter;
-        if (newFilter && ['open', 'closed'].includes(newFilter)) {
-          setFilter(newFilter);
-        }
-      }),
     ];
 
     return () => unsubscribers.forEach((unsub) => unsub());
   }, [events, context]);
 
-  // Filter pull requests
+  // Filter to only open pull requests, optionally excluding drafts
   const filteredPullRequests = useMemo(() => {
-    return pullRequests.filter((pr) => pr.state === filter);
-  }, [filter, pullRequests]);
+    return pullRequests.filter((pr) => {
+      if (pr.state !== 'open') return false;
+      if (!showDrafts && pr.draft) return false;
+      return true;
+    });
+  }, [pullRequests, showDrafts]);
 
-  // Count PRs by state
-  const counts = useMemo(() => {
-    const open = pullRequests.filter((pr) => pr.state === 'open').length;
-    const closed = pullRequests.filter((pr) => pr.state === 'closed').length;
-    return { open, closed };
+  // Count drafts for the toggle label
+  const draftCount = useMemo(() => {
+    return pullRequests.filter((pr) => pr.state === 'open' && pr.draft).length;
   }, [pullRequests]);
 
   const handleRefresh = async () => {
@@ -217,77 +208,60 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
             textTransform: 'uppercase',
           }}
         >
-Pull Requests
+          Open Pull Requests
         </div>
 
-        <button
-          type="button"
-          onClick={handleRefresh}
-          disabled={isLoading}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 10px',
-            borderRadius: '4px',
-            border: `1px solid ${theme.colors.border}`,
-            backgroundColor: theme.colors.background,
-            color: theme.colors.text,
-            cursor: isLoading ? 'default' : 'pointer',
-            fontFamily: theme.fonts.body,
-            fontSize: theme.fontSizes[0],
-            fontWeight: 500,
-            opacity: isLoading ? 0.7 : 1,
-          }}
-        >
-          {isLoading ? (
-            <Loader2 size={12} className="spin" />
-          ) : (
-            <RefreshCcw size={12} />
-          )}
-          {isLoading ? 'Refreshing...' : 'Refresh'}
-        </button>
-      </div>
-
-      {/* Filter buttons - equal width */}
-      <div
-        style={{
-          display: 'flex',
-          borderBottom: `1px solid ${theme.colors.border}`,
-        }}
-      >
-        {(['open', 'closed'] as const).map((value) => {
-          const isActive = filter === value;
-          const label = value === 'open' ? 'Open' : 'Closed';
-
-          return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {draftCount > 0 && (
             <button
-              key={value}
               type="button"
-              onClick={() => setFilter(value)}
+              onClick={() => setShowDrafts(!showDrafts)}
               style={{
-                flex: 1,
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
                 gap: '6px',
-                padding: '8px 12px',
-                border: 'none',
-                borderBottom: isActive ? `2px solid ${theme.colors.primary}` : '2px solid transparent',
-                backgroundColor: 'transparent',
-                color: isActive ? theme.colors.text : theme.colors.textSecondary,
-                fontFamily: theme.fonts.body,
-                fontSize: theme.fontSizes[1],
-                fontWeight: isActive ? 600 : 500,
+                padding: '4px 10px',
+                borderRadius: '4px',
+                border: `1px solid ${showDrafts ? theme.colors.primary : theme.colors.border}`,
+                backgroundColor: showDrafts ? `${theme.colors.primary}15` : theme.colors.background,
+                color: showDrafts ? theme.colors.primary : theme.colors.textSecondary,
                 cursor: 'pointer',
-                marginBottom: '-1px',
+                fontFamily: theme.fonts.body,
+                fontSize: theme.fontSizes[0],
+                fontWeight: 500,
               }}
             >
-              {label}
-              <span style={{ opacity: 0.7 }}>({counts[value]})</span>
+              Drafts ({draftCount})
             </button>
-          );
-        })}
+          )}
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isLoading}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '4px',
+              border: `1px solid ${theme.colors.border}`,
+              backgroundColor: theme.colors.background,
+              color: theme.colors.text,
+              cursor: isLoading ? 'default' : 'pointer',
+              fontFamily: theme.fonts.body,
+              fontSize: theme.fontSizes[0],
+              fontWeight: 500,
+              opacity: isLoading ? 0.7 : 1,
+            }}
+          >
+            {isLoading ? (
+              <Loader2 size={12} className="spin" />
+            ) : (
+              <RefreshCcw size={12} />
+            )}
+            {isLoading ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       {/* PR List */}
@@ -312,9 +286,11 @@ Pull Requests
             }}
           >
             <GitPullRequest size={32} style={{ marginBottom: '12px' }} />
-            <div style={{ fontFamily: theme.fonts.heading, fontSize: theme.fontSizes[1], fontWeight: 600 }}>No pull requests found</div>
+            <div style={{ fontFamily: theme.fonts.heading, fontSize: theme.fontSizes[1], fontWeight: 600 }}>No open pull requests</div>
             <div style={{ marginTop: '4px', fontSize: theme.fontSizes[0] }}>
-              There are no {filter} pull requests to display.
+              {draftCount > 0 && !showDrafts
+                ? `There are ${draftCount} draft PR${draftCount === 1 ? '' : 's'} hidden.`
+                : 'There are no open pull requests to display.'}
             </div>
           </div>
         ) : (

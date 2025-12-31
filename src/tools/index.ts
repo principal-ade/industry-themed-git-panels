@@ -126,42 +126,10 @@ export const refreshPullRequestsTool: PanelTool = {
 };
 
 /**
- * Tool: Set PR Filter
- */
-export const setPRFilterTool: PanelTool = {
-  name: 'set_pr_filter',
-  description: 'Sets the pull request filter (all, open, or closed)',
-  inputs: {
-    type: 'object',
-    properties: {
-      filter: {
-        type: 'string',
-        enum: ['all', 'open', 'closed'],
-        description: 'Filter to apply to pull requests',
-      },
-    },
-    required: ['filter'],
-  },
-  outputs: {
-    type: 'object',
-    properties: {
-      success: { type: 'boolean' },
-      filter: { type: 'string' },
-    },
-  },
-  tags: ['git', 'pull-requests', 'filter'],
-  tool_call_template: {
-    call_template_type: 'panel_event',
-    event_type: 'git-panels.pull-requests:set-filter',
-  },
-};
-
-/**
  * All pull requests panel tools
  */
 export const pullRequestsTools: PanelTool[] = [
   refreshPullRequestsTool,
-  setPRFilterTool,
 ];
 
 /**
