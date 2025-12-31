@@ -279,7 +279,7 @@ const CommitCard: React.FC<{
           fontFamily: theme.fonts.heading,
           fontSize: theme.fontSizes[2],
           fontWeight: 600,
-          color: isActive ? theme.colors.text : theme.colors.primary,
+          color: theme.colors.text,
           lineHeight: 1.3,
           wordBreak: 'break-word',
           transition: 'color 0.15s ease',
