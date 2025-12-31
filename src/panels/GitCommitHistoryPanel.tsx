@@ -113,14 +113,14 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
       {/* Header - 40px total including border */}
       <div
         style={{
+          position: 'relative',
           height: '40px',
-          minHeight: '40px',
-          padding: '0 12px',
-          borderBottom: `1px solid ${theme.colors.border}`,
-          backgroundColor: theme.colors.background,
+          padding: '0 16px',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          borderBottom: `1px solid ${theme.colors.border}`,
+          backgroundColor: theme.colors.backgroundLight,
           boxSizing: 'border-box',
         }}
       >
@@ -128,39 +128,41 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            color: theme.colors.textSecondary,
-            fontFamily: theme.fonts.heading,
-            fontSize: theme.fontSizes[0],
-            fontWeight: 600,
-            textTransform: 'uppercase',
+            justifyContent: 'space-between',
           }}
         >
-Commit History
+          <span
+            style={{
+              fontFamily: theme.fonts.body,
+              fontSize: theme.fontSizes[1],
+              color: theme.colors.textSecondary,
+              fontWeight: 500,
+            }}
+          >
+            Commit History
+          </span>
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isLoading}
+            style={{
+              background: 'none',
+              border: '1px solid transparent',
+              borderRadius: '4px',
+              cursor: isLoading ? 'default' : 'pointer',
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: theme.colors.textSecondary,
+              opacity: isLoading ? 0.7 : 1,
+              transition: 'all 0.2s ease',
+            }}
+            title={isLoading ? 'Refreshing...' : 'Refresh'}
+          >
+            <RefreshCcw size={16} />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleRefresh}
-          disabled={isLoading}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            padding: '4px 10px',
-            borderRadius: '4px',
-            border: `1px solid ${theme.colors.border}`,
-            backgroundColor: theme.colors.background,
-            color: theme.colors.text,
-            cursor: isLoading ? 'default' : 'pointer',
-            fontFamily: theme.fonts.body,
-            fontSize: theme.fontSizes[0],
-            fontWeight: 500,
-            opacity: isLoading ? 0.7 : 1,
-          }}
-        >
-          <RefreshCcw size={12} />
-          {isLoading ? 'Refreshing...' : 'Refresh'}
-        </button>
       </div>
 
       {/* Content area */}
@@ -300,7 +302,7 @@ const CommitCard: React.FC<{
         }}
       >
         <span title={new Date(commit.date).toLocaleString()}>{relative}</span>
-        {commit.author && <span>by {commit.author}</span>}
+        {commit.author && <span>by <span style={{ color: theme.colors.primary }}>{commit.author}</span></span>}
       </div>
     </div>
   );
@@ -360,7 +362,7 @@ export const GitCommitHistoryPanelPreview: React.FC = () => {
               fontFamily: theme.fonts.body,
             }}
           >
-            <span>{commit.author}</span>
+            <span style={{ color: theme.colors.primary }}>{commit.author}</span>
             <span>•</span>
             <span style={{ fontFamily: theme.fonts.monospace }}>
               {commit.sha}

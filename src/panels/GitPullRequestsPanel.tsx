@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@principal-ade/industry-theme';
 import {
   AlertCircle,
-  Calendar,
   GitPullRequest,
   Loader2,
   MessageSquare,
@@ -185,14 +184,14 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
       {/* Header - 40px total including border */}
       <div
         style={{
+          position: 'relative',
           height: '40px',
-          minHeight: '40px',
-          padding: '0 12px',
-          borderBottom: `1px solid ${theme.colors.border}`,
-          backgroundColor: theme.colors.background,
+          padding: '0 16px',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          borderBottom: `1px solid ${theme.colors.border}`,
+          backgroundColor: theme.colors.backgroundLight,
           boxSizing: 'border-box',
         }}
       >
@@ -200,67 +199,80 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            color: theme.colors.textSecondary,
-            fontFamily: theme.fonts.heading,
-            fontSize: theme.fontSizes[0],
-            fontWeight: 600,
-            textTransform: 'uppercase',
+            justifyContent: 'space-between',
           }}
         >
-          Open Pull Requests
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {draftCount > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowDrafts(!showDrafts)}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <span
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 10px',
-                borderRadius: '4px',
-                border: `1px solid ${showDrafts ? theme.colors.primary : theme.colors.border}`,
-                backgroundColor: showDrafts ? `${theme.colors.primary}15` : theme.colors.background,
-                color: showDrafts ? theme.colors.primary : theme.colors.textSecondary,
-                cursor: 'pointer',
                 fontFamily: theme.fonts.body,
-                fontSize: theme.fontSizes[0],
+                fontSize: theme.fontSizes[1],
+                color: theme.colors.textSecondary,
                 fontWeight: 500,
               }}
             >
-              Drafts ({draftCount})
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={handleRefresh}
-            disabled={isLoading}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 10px',
-              borderRadius: '4px',
-              border: `1px solid ${theme.colors.border}`,
-              backgroundColor: theme.colors.background,
-              color: theme.colors.text,
-              cursor: isLoading ? 'default' : 'pointer',
-              fontFamily: theme.fonts.body,
-              fontSize: theme.fontSizes[0],
-              fontWeight: 500,
-              opacity: isLoading ? 0.7 : 1,
-            }}
-          >
-            {isLoading ? (
-              <Loader2 size={12} className="spin" />
-            ) : (
-              <RefreshCcw size={12} />
+              Open Pull Requests
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {draftCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowDrafts(!showDrafts)}
+                style={{
+                  background: showDrafts
+                    ? theme.colors.backgroundSecondary
+                    : 'none',
+                  border: `1px solid ${showDrafts ? theme.colors.border : 'transparent'}`,
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  padding: '4px 8px',
+                  color: showDrafts
+                    ? theme.colors.primary
+                    : theme.colors.textSecondary,
+                  fontSize: theme.fontSizes[0],
+                  fontFamily: theme.fonts.body,
+                  fontWeight: 500,
+                  transition: 'all 0.2s ease',
+                }}
+                title={showDrafts ? 'Hide draft PRs' : 'Show draft PRs'}
+              >
+                Drafts
+              </button>
             )}
-            {isLoading ? 'Refreshing...' : 'Refresh'}
-          </button>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isLoading}
+              style={{
+                background: 'none',
+                border: '1px solid transparent',
+                borderRadius: '4px',
+                cursor: isLoading ? 'default' : 'pointer',
+                padding: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: theme.colors.textSecondary,
+                opacity: isLoading ? 0.7 : 1,
+                transition: 'all 0.2s ease',
+              }}
+              title={isLoading ? 'Refreshing...' : 'Refresh'}
+            >
+              {isLoading ? (
+                <Loader2 size={16} className="spin" />
+              ) : (
+                <RefreshCcw size={16} />
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -397,16 +409,8 @@ const PullRequestCard: React.FC<{
         >
           #{pr.number}
         </span>
-        <span>by {pr.user?.login ?? 'unknown'}</span>
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-          }}
-        >
-          <Calendar size={12} /> {formatDate(pr.created_at)}
-        </span>
+        <span>by <span style={{ color: theme.colors.primary }}>{pr.user?.login ?? 'unknown'}</span></span>
+        <span>{formatDate(pr.created_at)}</span>
         {!isOpen && (
           <span
             style={{
