@@ -136,8 +136,7 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
             textTransform: 'uppercase',
           }}
         >
-          <HistoryIcon size={14} />
-          Commit History
+Commit History
         </div>
         <button
           type="button"
@@ -265,7 +264,7 @@ const CommitCard: React.FC<{
       style={{
         borderBottom: `1px solid ${theme.colors.border}`,
         padding: '16px',
-        backgroundColor: isActive ? theme.colors.background : theme.colors.backgroundSecondary,
+        backgroundColor: isActive ? theme.colors.backgroundSecondary : theme.colors.background,
         display: 'flex',
         flexDirection: 'column',
         gap: '8px',
@@ -280,7 +279,7 @@ const CommitCard: React.FC<{
           fontFamily: theme.fonts.heading,
           fontSize: theme.fontSizes[2],
           fontWeight: 600,
-          color: isActive ? theme.colors.primary : theme.colors.text,
+          color: isActive ? theme.colors.text : theme.colors.primary,
           lineHeight: 1.3,
           wordBreak: 'break-word',
           transition: 'color 0.15s ease',
