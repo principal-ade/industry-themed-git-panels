@@ -2,19 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useTheme } from '@principal-ade/industry-theme';
 import { DocumentView } from 'themed-markdown';
 import {
-  Clock,
   ExternalLink,
-  FileText,
   GitCommit,
   Loader2,
-  Mail,
   Minus,
   Plus,
-  User,
   X,
 } from 'lucide-react';
-import type { PanelComponentProps, GitCommitDetail, CommitFile } from '../types';
-import { formatDate, formatRelativeTime } from '../utils/formatters';
+import type { PanelComponentProps, GitCommitDetail } from '../types';
+import { formatRelativeTime } from '../utils/formatters';
 
 /**
  * GitCommitDetailPanel - Displays detailed information about a selected commit.
@@ -25,7 +21,6 @@ import { formatDate, formatRelativeTime } from '../utils/formatters';
  * - Author information
  * - Date
  * - Stats (additions/deletions)
- * - Files changed
  *
  * Events:
  * - Listens: 'git-panels.commit-detail:loaded' - When host provides full commit data
@@ -265,25 +260,38 @@ const GitCommitDetailPanelContent: React.FC<PanelComponentProps> = ({
           backgroundColor: theme.colors.backgroundSecondary,
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
+          gap: '8px',
           boxSizing: 'border-box',
         }}
       >
-        {/* Commit icon */}
-        <GitCommit size={14} style={{ color: theme.colors.primary }} />
+        {/* Files changed count */}
+        {selectedCommit.files && selectedCommit.files.length > 0 && (
+          <span
+            style={{
+              color: theme.colors.textSecondary,
+              fontSize: theme.fontSizes[0],
+              fontFamily: theme.fonts.body,
+            }}
+          >
+            <span style={{ color: theme.colors.primary }}>{selectedCommit.files.length} {selectedCommit.files.length === 1 ? 'file' : 'files'}</span> changed
+          </span>
+        )}
 
-        {/* Short hash */}
+        {/* Author, date, and hash info */}
         <span
           style={{
-            fontFamily: theme.fonts.monospace,
-            fontSize: theme.fontSizes[1],
-            color: theme.colors.primary,
-            backgroundColor: `${theme.colors.primary}15`,
-            padding: '2px 8px',
-            borderRadius: '4px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            color: theme.colors.textSecondary,
+            fontSize: theme.fontSizes[0],
+            fontFamily: theme.fonts.body,
           }}
         >
-          {shortHash}
+          <span style={{ color: theme.colors.primary }}>{relative}</span>
+          <span>by <span style={{ color: theme.colors.primary }}>{selectedCommit.author}</span></span>
+          <span>as</span>
+          <span style={{ fontFamily: theme.fonts.monospace }}>sha {shortHash}</span>
         </span>
 
         {/* Stats badge */}
@@ -292,8 +300,14 @@ const GitCommitDetailPanelContent: React.FC<PanelComponentProps> = ({
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '999px',
+              backgroundColor: `${theme.colors.primary}20`,
+              color: theme.colors.primary,
+              fontFamily: theme.fonts.heading,
               fontSize: theme.fontSizes[0],
+              fontWeight: 600,
             }}
           >
             <span style={{ color: theme.colors.success || '#22c55e', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
@@ -381,94 +395,12 @@ const GitCommitDetailPanelContent: React.FC<PanelComponentProps> = ({
           {firstLine}
         </h1>
 
-        {/* Metadata section */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-            padding: '12px',
-            marginBottom: '16px',
-            backgroundColor: theme.colors.backgroundSecondary,
-            borderRadius: '8px',
-            border: `1px solid ${theme.colors.border}`,
-          }}
-        >
-          {/* Author with email */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: theme.fontSizes[1],
-            }}
-          >
-            <User size={14} style={{ color: theme.colors.textSecondary }} />
-            <span style={{ color: theme.colors.text }}>{selectedCommit.author}</span>
-            {selectedCommit.authorEmail && (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  color: theme.colors.textSecondary,
-                  fontSize: theme.fontSizes[0],
-                }}
-              >
-                <Mail size={12} />
-                {selectedCommit.authorEmail}
-              </span>
-            )}
-          </div>
-
-          {/* Date */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: theme.fontSizes[1],
-            }}
-          >
-            <Clock size={14} style={{ color: theme.colors.textSecondary }} />
-            <span style={{ color: theme.colors.text }}>{formatDate(selectedCommit.date)}</span>
-            <span style={{ color: theme.colors.textSecondary }}>({relative})</span>
-          </div>
-
-          {/* Full hash */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: theme.fontSizes[1],
-            }}
-          >
-            <GitCommit size={14} style={{ color: theme.colors.textSecondary }} />
-            <code
-              style={{
-                fontFamily: theme.fonts.monospace,
-                fontSize: theme.fontSizes[0],
-                color: theme.colors.text,
-                backgroundColor: theme.colors.background,
-                padding: '2px 6px',
-                borderRadius: '4px',
-              }}
-            >
-              {selectedCommit.hash}
-            </code>
-          </div>
-        </div>
-
         {/* Body - markdown rendered (if there's more than just the first line) */}
         {messageBody && (
           <div
             style={{
-              marginBottom: '16px',
-              padding: '16px',
-              backgroundColor: theme.colors.backgroundSecondary,
-              borderRadius: '8px',
-              border: `1px solid ${theme.colors.border}`,
+              borderTop: `1px solid ${theme.colors.border}`,
+              paddingTop: '16px',
             }}
           >
             <DocumentView
@@ -479,118 +411,7 @@ const GitCommitDetailPanelContent: React.FC<PanelComponentProps> = ({
             />
           </div>
         )}
-
-        {/* Files changed */}
-        {selectedCommit.files && selectedCommit.files.length > 0 && (
-          <div>
-            <h2
-              style={{
-                margin: 0,
-                marginBottom: '12px',
-                fontFamily: theme.fonts.heading,
-                fontSize: theme.fontSizes[2],
-                fontWeight: 600,
-                color: theme.colors.text,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              <FileText size={16} />
-              Files Changed ({selectedCommit.files.length})
-            </h2>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '4px',
-              }}
-            >
-              {selectedCommit.files.map((file) => (
-                <FileChangeRow key={file.filename} file={file} theme={theme} />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
-    </div>
-  );
-};
-
-/**
- * Individual file change row
- */
-const FileChangeRow: React.FC<{
-  file: CommitFile;
-  theme: ReturnType<typeof useTheme>['theme'];
-}> = ({ file, theme }) => {
-  const statusColors: Record<string, string> = {
-    added: theme.colors.success || '#22c55e',
-    removed: theme.colors.error || '#ef4444',
-    modified: theme.colors.warning || '#f59e0b',
-    renamed: theme.colors.info || '#3b82f6',
-  };
-
-  const statusColor = statusColors[file.status] || theme.colors.textSecondary;
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        padding: '8px 12px',
-        backgroundColor: theme.colors.backgroundSecondary,
-        borderRadius: '6px',
-        border: `1px solid ${theme.colors.border}`,
-        fontSize: theme.fontSizes[1],
-      }}
-    >
-      {/* Status indicator */}
-      <span
-        style={{
-          width: '8px',
-          height: '8px',
-          borderRadius: '50%',
-          backgroundColor: statusColor,
-          flexShrink: 0,
-        }}
-        title={file.status}
-      />
-
-      {/* Filename */}
-      <span
-        style={{
-          flex: 1,
-          fontFamily: theme.fonts.monospace,
-          fontSize: theme.fontSizes[0],
-          color: theme.colors.text,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-        title={file.filename}
-      >
-        {file.filename}
-      </span>
-
-      {/* Stats */}
-      <span
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          fontSize: theme.fontSizes[0],
-          flexShrink: 0,
-        }}
-      >
-        {file.additions > 0 && (
-          <span style={{ color: theme.colors.success || '#22c55e' }}>+{file.additions}</span>
-        )}
-        {file.deletions > 0 && (
-          <span style={{ color: theme.colors.error || '#ef4444' }}>-{file.deletions}</span>
-        )}
-      </span>
     </div>
   );
 };

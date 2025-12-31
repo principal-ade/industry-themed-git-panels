@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { History as HistoryIcon, RefreshCcw, Clock } from 'lucide-react';
+import { History as HistoryIcon, RefreshCcw } from 'lucide-react';
 import { useTheme } from '@principal-ade/industry-theme';
 import type { PanelComponentProps } from '../types';
 import type { CommitsSliceData, GitCommitInfo } from '../types';
@@ -22,6 +22,7 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
 }) => {
   const { theme } = useTheme();
   const [limit, setLimit] = useState(25);
+  const [selectedHash, setSelectedHash] = useState<string | null>(null);
 
   // Get commits from the slice
   const commitsSlice = context.getSlice<CommitsSliceData>('commits');
@@ -74,7 +75,7 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    backgroundColor: theme.colors.backgroundSecondary,
+    backgroundColor: theme.colors.background,
     overflow: 'hidden',
   };
 
@@ -108,6 +109,7 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
 
   return (
     <div style={containerStyle}>
+      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
       {/* Header - 40px total including border */}
       <div
         style={{
@@ -115,20 +117,28 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
           minHeight: '40px',
           padding: '0 12px',
           borderBottom: `1px solid ${theme.colors.border}`,
+          backgroundColor: theme.colors.background,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          color: theme.colors.textSecondary,
-          textTransform: 'uppercase',
-          fontWeight: 600,
-          fontSize: theme.fontSizes[1],
           boxSizing: 'border-box',
         }}
       >
-        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: theme.colors.textSecondary,
+            fontFamily: theme.fonts.heading,
+            fontSize: theme.fontSizes[0],
+            fontWeight: 600,
+            textTransform: 'uppercase',
+          }}
+        >
           <HistoryIcon size={14} />
           Commit History
-        </span>
+        </div>
         <button
           type="button"
           onClick={handleRefresh}
@@ -143,7 +153,8 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
             backgroundColor: theme.colors.background,
             color: theme.colors.text,
             cursor: isLoading ? 'default' : 'pointer',
-            fontSize: '12px',
+            fontFamily: theme.fonts.body,
+            fontSize: theme.fontSizes[0],
             fontWeight: 500,
             opacity: isLoading ? 0.7 : 1,
           }}
@@ -158,11 +169,12 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '16px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '10px',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
         }}
+        className="hide-scrollbar"
       >
         {/* Loading state */}
         {isLoading && commits.length === 0 && (
@@ -185,16 +197,17 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
         {!isLoading && sortedCommits.length === 0 && (
           <div
             style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              marginTop: '48px',
               textAlign: 'center',
               color: theme.colors.textSecondary,
-              fontSize: theme.fontSizes[1],
+              fontFamily: theme.fonts.body,
             }}
           >
-            No commits found.
+            <HistoryIcon size={32} style={{ marginBottom: '12px' }} />
+            <div style={{ fontFamily: theme.fonts.heading, fontSize: theme.fontSizes[1], fontWeight: 600 }}>No commits found</div>
+            <div style={{ marginTop: '4px', fontSize: theme.fontSizes[0] }}>
+              There are no commits to display.
+            </div>
           </div>
         )}
 
@@ -204,7 +217,9 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
             key={commit.hash}
             commit={commit}
             theme={theme}
+            isSelected={selectedHash === commit.hash}
             onClick={() => {
+              setSelectedHash(commit.hash);
               // Emit selection event with hash - host will fetch full details
               events.emit({
                 type: 'git-panels.commit:selected',
@@ -226,75 +241,67 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
 const CommitCard: React.FC<{
   commit: GitCommitInfo;
   theme: ReturnType<typeof useTheme>['theme'];
+  isSelected?: boolean;
   onClick?: () => void;
-}> = ({ commit, theme, onClick }) => {
+}> = ({ commit, theme, isSelected, onClick }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const isActive = isHovered || isSelected;
   const firstLine = commit.message.split('\n')[0];
   const relative = formatRelativeTime(commit.date);
 
   return (
     <div
       onClick={onClick}
-      style={{
-        padding: '12px',
-        backgroundColor: theme.colors.background,
-        borderRadius: '6px',
-        border: `1px solid ${theme.colors.border}`,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'border-color 0.15s ease',
-      }}
-      onMouseEnter={(e) => {
-        if (onClick) {
-          e.currentTarget.style.borderColor = theme.colors.primary;
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
         }
       }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = theme.colors.border;
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        borderBottom: `1px solid ${theme.colors.border}`,
+        padding: '16px',
+        backgroundColor: isActive ? theme.colors.background : theme.colors.backgroundSecondary,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        cursor: onClick ? 'pointer' : 'default',
+        minWidth: 0,
+        transition: 'background-color 0.15s ease',
       }}
     >
+      {/* Title row */}
       <div
         style={{
+          fontFamily: theme.fonts.heading,
           fontSize: theme.fontSizes[2],
-          color: theme.colors.text,
-          fontWeight: 500,
-          lineHeight: 1.4,
+          fontWeight: 600,
+          color: isActive ? theme.colors.primary : theme.colors.text,
+          lineHeight: 1.3,
+          wordBreak: 'break-word',
+          transition: 'color 0.15s ease',
         }}
       >
         {firstLine}
       </div>
+
+      {/* Metadata row */}
       <div
         style={{
           display: 'flex',
-          flexWrap: 'wrap',
-          gap: '8px',
           alignItems: 'center',
-          fontSize: theme.fontSizes[1],
+          gap: '4px',
           color: theme.colors.textSecondary,
+          fontFamily: theme.fonts.body,
+          fontSize: theme.fontSizes[0],
         }}
       >
-        {commit.author && <span>{commit.author}</span>}
-        <span style={{ fontSize: '10px' }}>•</span>
-        <span
-          style={{
-            fontFamily: theme.fonts.monospace,
-            fontSize: '11px',
-          }}
-        >
-          {commit.hash.substring(0, 8)}
-        </span>
-        <span style={{ fontSize: '10px' }}>•</span>
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-          }}
-        >
-          <Clock size={12} />
-          <span title={new Date(commit.date).toLocaleString()}>{relative}</span>
-        </span>
+        <span title={new Date(commit.date).toLocaleString()}>{relative}</span>
+        {commit.author && <span>by {commit.author}</span>}
       </div>
     </div>
   );
