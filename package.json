@@ -1,6 +1,6 @@
 {
   "name": "@industry-theme/git-panels",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Git commit history and pull request panels for the panel framework",
   "type": "module",
   "main": "dist/panels.bundle.js",
