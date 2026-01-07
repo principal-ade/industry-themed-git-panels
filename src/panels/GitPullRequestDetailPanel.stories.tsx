@@ -148,21 +148,23 @@ const WithSelectedPR: React.FC<{
   pr: PullRequestInfo;
   children: (props: PanelComponentProps) => React.ReactNode;
 }> = ({ pr, children }) => {
+  const SelectedPRInner: React.FC<{ props: PanelComponentProps }> = ({ props }) => {
+    // Emit selection event after initial render
+    useEffect(() => {
+      props.events.emit({
+        type: 'git-panels.pull-request:selected',
+        source: 'storybook',
+        timestamp: Date.now(),
+        payload: { pr },
+      });
+    }, [props.events]);
+
+    return <>{children(props)}</>;
+  };
+
   return (
     <MockPanelProvider>
-      {(props) => {
-        // Emit selection event after initial render
-        useEffect(() => {
-          props.events.emit({
-            type: 'git-panels.pull-request:selected',
-            source: 'storybook',
-            timestamp: Date.now(),
-            payload: { pr },
-          });
-        }, []);
-
-        return children(props);
-      }}
+      {(props) => <SelectedPRInner props={props} />}
     </MockPanelProvider>
   );
 };

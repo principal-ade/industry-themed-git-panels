@@ -134,20 +134,22 @@ const WithLoadedCommit: React.FC<{
   commit: GitCommitDetail;
   children: (props: PanelComponentProps) => React.ReactNode;
 }> = ({ commit, children }) => {
+  const LoadedCommitInner: React.FC<{ props: PanelComponentProps }> = ({ props }) => {
+    useEffect(() => {
+      props.events.emit({
+        type: 'git-panels.commit-detail:loaded',
+        source: 'storybook',
+        timestamp: Date.now(),
+        payload: { commit },
+      });
+    }, [props.events]);
+
+    return <>{children(props)}</>;
+  };
+
   return (
     <MockPanelProvider>
-      {(props) => {
-        useEffect(() => {
-          props.events.emit({
-            type: 'git-panels.commit-detail:loaded',
-            source: 'storybook',
-            timestamp: Date.now(),
-            payload: { commit },
-          });
-        }, []);
-
-        return children(props);
-      }}
+      {(props) => <LoadedCommitInner props={props} />}
     </MockPanelProvider>
   );
 };
@@ -159,20 +161,22 @@ const WithLoadingState: React.FC<{
   hash: string;
   children: (props: PanelComponentProps) => React.ReactNode;
 }> = ({ hash, children }) => {
+  const LoadingStateInner: React.FC<{ props: PanelComponentProps }> = ({ props }) => {
+    useEffect(() => {
+      props.events.emit({
+        type: 'git-panels.commit-detail:loading',
+        source: 'storybook',
+        timestamp: Date.now(),
+        payload: { hash },
+      });
+    }, [props.events]);
+
+    return <>{children(props)}</>;
+  };
+
   return (
     <MockPanelProvider>
-      {(props) => {
-        useEffect(() => {
-          props.events.emit({
-            type: 'git-panels.commit-detail:loading',
-            source: 'storybook',
-            timestamp: Date.now(),
-            payload: { hash },
-          });
-        }, []);
-
-        return children(props);
-      }}
+      {(props) => <LoadingStateInner props={props} />}
     </MockPanelProvider>
   );
 };
@@ -185,20 +189,22 @@ const WithErrorState: React.FC<{
   error: string;
   children: (props: PanelComponentProps) => React.ReactNode;
 }> = ({ hash, error, children }) => {
+  const ErrorStateInner: React.FC<{ props: PanelComponentProps }> = ({ props }) => {
+    useEffect(() => {
+      props.events.emit({
+        type: 'git-panels.commit-detail:error',
+        source: 'storybook',
+        timestamp: Date.now(),
+        payload: { hash, error },
+      });
+    }, [props.events]);
+
+    return <>{children(props)}</>;
+  };
+
   return (
     <MockPanelProvider>
-      {(props) => {
-        useEffect(() => {
-          props.events.emit({
-            type: 'git-panels.commit-detail:error',
-            source: 'storybook',
-            timestamp: Date.now(),
-            payload: { hash, error },
-          });
-        }, []);
-
-        return children(props);
-      }}
+      {(props) => <ErrorStateInner props={props} />}
     </MockPanelProvider>
   );
 };
