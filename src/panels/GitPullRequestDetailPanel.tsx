@@ -8,7 +8,7 @@ import {
   MessageSquare,
   X,
 } from 'lucide-react';
-import type { PanelComponentProps, PullRequestInfo } from '../types';
+import type { GitPullRequestDetailPanelProps, PullRequestInfo } from '../types';
 import { formatDate } from '../utils/formatters';
 
 /**
@@ -29,7 +29,7 @@ interface PRSelectedPayload {
   pr: PullRequestInfo;
 }
 
-const GitPullRequestDetailPanelContent: React.FC<PanelComponentProps> = ({
+const GitPullRequestDetailPanelContent: React.FC<GitPullRequestDetailPanelProps> = ({
   events,
 }) => {
   const { theme } = useTheme();

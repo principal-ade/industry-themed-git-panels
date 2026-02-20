@@ -18,7 +18,7 @@ import {
  * Export array of panel definitions.
  * This is the required export for panel extensions.
  */
-export const panels: PanelDefinition[] = [
+export const panels: PanelDefinition<any, any>[] = [
   {
     metadata: {
       id: 'git-panels.commit-history',
@@ -33,8 +33,9 @@ export const panels: PanelDefinition[] = [
     component: GitCommitHistoryPanel,
 
     onMount: async (context: PanelContextValue) => {
-      // Refresh commits data when panel mounts
-      if (context.hasSlice('commits') && !context.isSliceLoading('commits')) {
+      // Refresh commits data when panel mounts (using direct typed slice access)
+      const commitsSlice = context.getSlice('commits');
+      if (commitsSlice && !commitsSlice.loading) {
         await context.refresh('repository', 'commits');
       }
     },
@@ -66,8 +67,9 @@ export const panels: PanelDefinition[] = [
     component: GitPullRequestsPanel,
 
     onMount: async (context: PanelContextValue) => {
-      // Refresh PR data when panel mounts
-      if (context.hasSlice('pullRequests') && !context.isSliceLoading('pullRequests')) {
+      // Refresh PR data when panel mounts (using direct typed slice access)
+      const pullRequestsSlice = context.getSlice('pullRequests');
+      if (pullRequestsSlice && !pullRequestsSlice.loading) {
         await context.refresh('repository', 'pullRequests');
       }
     },

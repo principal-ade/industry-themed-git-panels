@@ -7,21 +7,20 @@ import {
   MessageSquare,
   RefreshCcw,
 } from 'lucide-react';
-import type { PanelComponentProps } from '../types';
-import type { PullRequestsSliceData, PullRequestInfo } from '../types';
+import type { GitPullRequestsPanelProps, PullRequestInfo } from '../types';
 import { formatDate } from '../utils/formatters';
 
 /**
  * GitPullRequestsPanel - Displays open pull requests from the 'pullRequests' slice.
  *
  * This panel expects the host to provide PR data through:
- * - context.getSlice<PullRequestsSliceData>('pullRequests')
+ * - context.pullRequests (typed slice access)
  *
  * The panel supports:
  * - Refresh via context.refresh()
  * - Tool events for programmatic interaction
  */
-export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
+export const GitPullRequestsPanel: React.FC<GitPullRequestsPanelProps> = ({
   context,
   events,
 }) => {
@@ -29,10 +28,10 @@ export const GitPullRequestsPanel: React.FC<PanelComponentProps> = ({
   const [selectedPrId, setSelectedPrId] = useState<number | null>(null);
   const [showDrafts, setShowDrafts] = useState(false);
 
-  // Get pull requests from the slice
-  const prSlice = context.getSlice<PullRequestsSliceData>('pullRequests');
-  const hasPRs = context.hasSlice('pullRequests');
-  const isLoading = context.isSliceLoading('pullRequests');
+  // Get pull requests from the slice (now with direct typed access)
+  const { pullRequests: prSlice } = context;
+  const hasPRs = !!prSlice;
+  const isLoading = prSlice?.loading ?? false;
   const pullRequests = prSlice?.data?.pullRequests ?? [];
 
   // Subscribe to panel events

@@ -5,6 +5,13 @@
  * and defines git-specific slice types for this library.
  */
 
+// Import core types for local use
+import type {
+  PanelActions,
+  PanelComponentProps,
+  DataSlice,
+} from '@principal-ade/panel-framework-core';
+
 // Re-export all core types from panel-framework-core
 export type {
   // Core data types
@@ -302,3 +309,61 @@ export interface GitConfigSliceData {
   /** All raw config entries for detailed view */
   allEntries: GitConfigEntry[];
 }
+
+// ============================================================================
+// Typed Panel Interfaces (v0.4.2+)
+// ============================================================================
+
+/**
+ * Typed panel actions and context for GitCommitHistoryPanel.
+ */
+export type GitCommitHistoryPanelActions = PanelActions;
+
+export interface GitCommitHistoryPanelContext {
+  commits: DataSlice<CommitsSliceData>;
+}
+
+export type GitCommitHistoryPanelProps = PanelComponentProps<
+  GitCommitHistoryPanelActions,
+  GitCommitHistoryPanelContext
+>;
+
+/**
+ * Typed panel actions and context for GitCommitDetailPanel.
+ * This panel is event-driven only, no slices.
+ */
+export type GitCommitDetailPanelActions = PanelActions;
+
+export interface GitCommitDetailPanelContext {}
+
+export type GitCommitDetailPanelProps = PanelComponentProps<
+  GitCommitDetailPanelActions,
+  GitCommitDetailPanelContext
+>;
+
+/**
+ * Typed panel actions and context for GitPullRequestsPanel.
+ */
+export type GitPullRequestsPanelActions = PanelActions;
+
+export interface GitPullRequestsPanelContext {
+  pullRequests: DataSlice<PullRequestsSliceData>;
+}
+
+export type GitPullRequestsPanelProps = PanelComponentProps<
+  GitPullRequestsPanelActions,
+  GitPullRequestsPanelContext
+>;
+
+/**
+ * Typed panel actions and context for GitPullRequestDetailPanel.
+ * This panel is event-driven only, no slices.
+ */
+export type GitPullRequestDetailPanelActions = PanelActions;
+
+export interface GitPullRequestDetailPanelContext {}
+
+export type GitPullRequestDetailPanelProps = PanelComponentProps<
+  GitPullRequestDetailPanelActions,
+  GitPullRequestDetailPanelContext
+>;

@@ -9,7 +9,7 @@ import {
   Plus,
   X,
 } from 'lucide-react';
-import type { PanelComponentProps, GitCommitDetail } from '../types';
+import type { GitCommitDetailPanelProps, GitCommitDetail } from '../types';
 import { formatRelativeTime } from '../utils/formatters';
 
 /**
@@ -42,7 +42,7 @@ interface CommitDetailErrorPayload {
   error: string;
 }
 
-const GitCommitDetailPanelContent: React.FC<PanelComponentProps> = ({
+const GitCommitDetailPanelContent: React.FC<GitCommitDetailPanelProps> = ({
   events,
 }) => {
   const { theme } = useTheme();

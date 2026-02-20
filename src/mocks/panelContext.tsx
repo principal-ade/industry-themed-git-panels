@@ -341,7 +341,9 @@ export const createMockContext = (
     ],
   ]);
 
-  const defaultContext: PanelContextValue = {
+  // TODO: Refactor to return properly typed mock contexts per panel instead of using 'any' cast
+  // This would provide better type safety in story files. For now, we cast to support v0.4.2 typed contexts.
+  const defaultContext: any = {
     currentScope: {
       type: 'repository',
       workspace: {
@@ -391,9 +393,13 @@ export const createMockContext = (
       // eslint-disable-next-line no-console
       console.log('[Mock] Context refresh called', { scope, slice });
     },
+    // Add typed slice properties for v0.4.2+ compatibility
+    commits: mockSlices.get('commits') as DataSlice<CommitsSliceData> | undefined,
+    pullRequests: mockSlices.get('pullRequests') as DataSlice<PullRequestsSliceData> | undefined,
+    gitConfig: mockSlices.get('gitConfig') as DataSlice<GitConfigSliceData> | undefined,
   };
 
-  return { ...defaultContext, ...overrides };
+  return { ...defaultContext, ...overrides } as PanelContextValue;
 };
 
 /**

@@ -1,22 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { History as HistoryIcon, RefreshCcw } from 'lucide-react';
 import { useTheme } from '@principal-ade/industry-theme';
-import type { PanelComponentProps } from '../types';
-import type { CommitsSliceData, GitCommitInfo } from '../types';
+import type { GitCommitHistoryPanelProps, GitCommitInfo } from '../types';
 import { formatRelativeTime } from '../utils/formatters';
 
 /**
  * GitCommitHistoryPanel - Displays git commit history from the 'commits' slice.
  *
  * This panel expects the host to provide commit data through:
- * - context.getSlice<CommitsSliceData>('commits')
+ * - context.commits (typed slice access)
  *
  * The panel supports:
  * - Displaying commits sorted by date (newest first)
  * - Refresh via context.refresh()
  * - Tool events for programmatic interaction
  */
-export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
+export const GitCommitHistoryPanel: React.FC<GitCommitHistoryPanelProps> = ({
   context,
   events,
 }) => {
@@ -24,10 +23,10 @@ export const GitCommitHistoryPanel: React.FC<PanelComponentProps> = ({
   const [limit, setLimit] = useState(25);
   const [selectedHash, setSelectedHash] = useState<string | null>(null);
 
-  // Get commits from the slice
-  const commitsSlice = context.getSlice<CommitsSliceData>('commits');
-  const hasCommits = context.hasSlice('commits');
-  const isLoading = context.isSliceLoading('commits');
+  // Get commits from the slice (now with direct typed access)
+  const { commits: commitsSlice } = context;
+  const hasCommits = !!commitsSlice;
+  const isLoading = commitsSlice?.loading ?? false;
   const commits = commitsSlice?.data?.commits ?? [];
 
   // Sort commits by date (newest first)
