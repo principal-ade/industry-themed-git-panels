@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { GitConfigPanel, GitConfigPanelPreview } from './GitConfigPanel';
 import { MockPanelProvider, createMockContext } from '../mocks/panelContext';
-import type { DataSlice } from '../types';
-import type { GitConfigSliceData } from '../types';
+import type { GitConfigPanelProps, GitConfigSliceData } from '../types';
 
 const meta: Meta<typeof GitConfigPanel> = {
   title: 'Git Panels/Git Configuration',
@@ -22,7 +21,7 @@ type Story = StoryObj<typeof GitConfigPanel>;
 export const Default: Story = {
   render: () => (
     <MockPanelProvider>
-      {(props) => <GitConfigPanel {...props} />}
+      {(props) => <GitConfigPanel {...props as GitConfigPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -31,135 +30,125 @@ export const Default: Story = {
  * Empty remotes and branches
  */
 export const MinimalConfig: Story = {
-  render: () => (
-    <MockPanelProvider
-      contextOverrides={{
-        ...createMockContext(),
-        getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-          if (name === 'gitConfig') {
-            const data: GitConfigSliceData = {
-              user: {
-                name: 'Developer',
-                email: 'dev@example.com',
-              },
-              core: {},
-              performance: {},
-              transfer: {},
-              mergeDiff: {},
-              commit: {},
-              remotes: [],
-              branches: [],
-              allEntries: [
-                { key: 'user.name', value: 'Developer', scope: 'global' },
-                { key: 'user.email', value: 'dev@example.com', scope: 'global' },
-              ],
-            };
-            return {
-              scope: 'repository',
-              name: 'gitConfig',
-              data: data as unknown as T,
-              loading: false,
-              error: null,
-              refresh: async () => {},
-            };
-          }
-          return undefined;
-        },
-        hasSlice: (name: string) => name === 'gitConfig',
-        isSliceLoading: () => false,
-      }}
-    >
-      {(props) => <GitConfigPanel {...props} />}
-    </MockPanelProvider>
-  ),
+  render: () => {
+    const minimalConfigData: GitConfigSliceData = {
+      user: {
+        name: 'Developer',
+        email: 'dev@example.com',
+      },
+      core: {},
+      performance: {},
+      transfer: {},
+      mergeDiff: {},
+      commit: {},
+      remotes: [],
+      branches: [],
+      allEntries: [
+        { key: 'user.name', value: 'Developer', scope: 'global' },
+        { key: 'user.email', value: 'dev@example.com', scope: 'global' },
+      ],
+    };
+    return (
+      <MockPanelProvider
+        contextOverrides={{
+          ...createMockContext(),
+          gitConfig: {
+            scope: 'repository',
+            name: 'gitConfig',
+            data: minimalConfigData,
+            loading: false,
+            error: null,
+            refresh: async () => {},
+          },
+        }}
+      >
+        {(props) => <GitConfigPanel {...props as GitConfigPanelProps} />}
+      </MockPanelProvider>
+    );
+  },
 };
 
 /**
  * Multiple remotes configured
  */
 export const MultipleRemotes: Story = {
-  render: () => (
-    <MockPanelProvider
-      contextOverrides={{
-        ...createMockContext(),
-        getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-          if (name === 'gitConfig') {
-            const data: GitConfigSliceData = {
-              user: {
-                name: 'Alex Developer',
-                email: 'alex@example.com',
-              },
-              core: {
-                editor: 'code --wait',
-                fsmonitor: true,
-                untrackedCache: true,
-              },
-              performance: {
-                gcAuto: 256,
-                featureManyFiles: true,
-              },
-              transfer: {
-                fetchPrune: true,
-                pullRebase: true,
-                pushAutoSetupRemote: true,
-              },
-              mergeDiff: {
-                diffAlgorithm: 'histogram',
-                rerereEnabled: true,
-              },
-              commit: {
-                gpgSign: false,
-              },
-              remotes: [
-                {
-                  name: 'origin',
-                  fetchUrl: 'git@github.com:myorg/myrepo.git',
-                },
-                {
-                  name: 'upstream',
-                  fetchUrl: 'git@github.com:upstream/myrepo.git',
-                },
-                {
-                  name: 'fork',
-                  fetchUrl: 'https://github.com/myfork/myrepo.git',
-                  pushUrl: 'git@github.com:myfork/myrepo.git',
-                },
-              ],
-              branches: [
-                { name: 'main', remote: 'origin', merge: 'refs/heads/main' },
-                { name: 'develop', remote: 'origin', merge: 'refs/heads/develop' },
-                { name: 'feature/config-panel', remote: 'origin', merge: 'refs/heads/feature/config-panel' },
-              ],
-              allEntries: [
-                { key: 'user.name', value: 'Alex Developer', scope: 'global' },
-                { key: 'user.email', value: 'alex@example.com', scope: 'global' },
-                { key: 'core.editor', value: 'code --wait', scope: 'global' },
-                { key: 'core.fsmonitor', value: 'true', scope: 'local' },
-                { key: 'remote.origin.url', value: 'git@github.com:myorg/myrepo.git', scope: 'local' },
-                { key: 'remote.upstream.url', value: 'git@github.com:upstream/myrepo.git', scope: 'local' },
-                { key: 'remote.fork.url', value: 'https://github.com/myfork/myrepo.git', scope: 'local' },
-                { key: 'branch.main.remote', value: 'origin', scope: 'local' },
-                { key: 'branch.main.merge', value: 'refs/heads/main', scope: 'local' },
-              ],
-            };
-            return {
-              scope: 'repository',
-              name: 'gitConfig',
-              data: data as unknown as T,
-              loading: false,
-              error: null,
-              refresh: async () => {},
-            };
-          }
-          return undefined;
+  render: () => {
+    const multiRemotesData: GitConfigSliceData = {
+      user: {
+        name: 'Alex Developer',
+        email: 'alex@example.com',
+      },
+      core: {
+        editor: 'code --wait',
+        fsmonitor: true,
+        untrackedCache: true,
+      },
+      performance: {
+        gcAuto: 256,
+        featureManyFiles: true,
+      },
+      transfer: {
+        fetchPrune: true,
+        pullRebase: true,
+        pushAutoSetupRemote: true,
+      },
+      mergeDiff: {
+        diffAlgorithm: 'histogram',
+        rerereEnabled: true,
+      },
+      commit: {
+        gpgSign: false,
+      },
+      remotes: [
+        {
+          name: 'origin',
+          fetchUrl: 'git@github.com:myorg/myrepo.git',
         },
-        hasSlice: (name: string) => name === 'gitConfig',
-        isSliceLoading: () => false,
-      }}
-    >
-      {(props) => <GitConfigPanel {...props} />}
-    </MockPanelProvider>
-  ),
+        {
+          name: 'upstream',
+          fetchUrl: 'git@github.com:upstream/myrepo.git',
+        },
+        {
+          name: 'fork',
+          fetchUrl: 'https://github.com/myfork/myrepo.git',
+          pushUrl: 'git@github.com:myfork/myrepo.git',
+        },
+      ],
+      branches: [
+        { name: 'main', remote: 'origin', merge: 'refs/heads/main' },
+        { name: 'develop', remote: 'origin', merge: 'refs/heads/develop' },
+        { name: 'feature/config-panel', remote: 'origin', merge: 'refs/heads/feature/config-panel' },
+      ],
+      allEntries: [
+        { key: 'user.name', value: 'Alex Developer', scope: 'global' },
+        { key: 'user.email', value: 'alex@example.com', scope: 'global' },
+        { key: 'core.editor', value: 'code --wait', scope: 'global' },
+        { key: 'core.fsmonitor', value: 'true', scope: 'local' },
+        { key: 'remote.origin.url', value: 'git@github.com:myorg/myrepo.git', scope: 'local' },
+        { key: 'remote.upstream.url', value: 'git@github.com:upstream/myrepo.git', scope: 'local' },
+        { key: 'remote.fork.url', value: 'https://github.com/myfork/myrepo.git', scope: 'local' },
+        { key: 'branch.main.remote', value: 'origin', scope: 'local' },
+        { key: 'branch.main.merge', value: 'refs/heads/main', scope: 'local' },
+      ],
+    };
+    return (
+      <MockPanelProvider
+        contextOverrides={{
+          ...createMockContext(),
+          gitConfig: {
+            scope: 'repository',
+            name: 'gitConfig',
+            data: multiRemotesData,
+            loading: false,
+            error: null,
+            refresh: async () => {},
+          },
+        }}
+      >
+        {(props) => <GitConfigPanel {...props as GitConfigPanelProps} />}
+      </MockPanelProvider>
+    );
+  },
 };
 
 /**
@@ -170,24 +159,17 @@ export const Loading: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-          if (name === 'gitConfig') {
-            return {
-              scope: 'repository',
-              name: 'gitConfig',
-              data: undefined as unknown as T,
-              loading: true,
-              error: null,
-              refresh: async () => {},
-            };
-          }
-          return undefined;
+        gitConfig: {
+          scope: 'repository',
+          name: 'gitConfig',
+          data: null,
+          loading: true,
+          error: null,
+          refresh: async () => {},
         },
-        hasSlice: (name: string) => name === 'gitConfig',
-        isSliceLoading: (name: string) => name === 'gitConfig',
       }}
     >
-      {(props) => <GitConfigPanel {...props} />}
+      {(props) => <GitConfigPanel {...props as GitConfigPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -207,7 +189,7 @@ export const NoRepository: Story = {
         },
       }}
     >
-      {(props) => <GitConfigPanel {...props} />}
+      {(props) => <GitConfigPanel {...props as GitConfigPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -220,11 +202,10 @@ export const NoSlice: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        hasSlice: () => false,
-        getSlice: () => undefined,
+        gitConfig: undefined,
       }}
     >
-      {(props) => <GitConfigPanel {...props} />}
+      {(props) => <GitConfigPanel {...props as GitConfigPanelProps} />}
     </MockPanelProvider>
   ),
 };

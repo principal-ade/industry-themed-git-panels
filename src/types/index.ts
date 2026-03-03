@@ -367,3 +367,17 @@ export type GitPullRequestDetailPanelProps = PanelComponentProps<
   GitPullRequestDetailPanelActions,
   GitPullRequestDetailPanelContext
 >;
+
+/**
+ * Typed panel actions and context for GitConfigPanel.
+ */
+export type GitConfigPanelActions = PanelActions;
+
+export interface GitConfigPanelContext {
+  gitConfig: DataSlice<GitConfigSliceData>;
+}
+
+export type GitConfigPanelProps = PanelComponentProps<
+  GitConfigPanelActions,
+  GitConfigPanelContext
+>;

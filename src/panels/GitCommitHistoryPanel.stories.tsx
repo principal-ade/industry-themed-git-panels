@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { GitCommitHistoryPanel, GitCommitHistoryPanelPreview } from './GitCommitHistoryPanel';
 import { MockPanelProvider, createMockContext } from '../mocks/panelContext';
-import type { DataSlice } from '../types';
-import type { CommitsSliceData } from '../types';
+import type { GitCommitHistoryPanelProps } from '../types';
 
 const meta: Meta<typeof GitCommitHistoryPanel> = {
   title: 'Git Panels/Commit History',
@@ -22,7 +21,7 @@ type Story = StoryObj<typeof GitCommitHistoryPanel>;
 export const Default: Story = {
   render: () => (
     <MockPanelProvider>
-      {(props) => <GitCommitHistoryPanel {...props} />}
+      {(props) => <GitCommitHistoryPanel {...props as GitCommitHistoryPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -35,24 +34,17 @@ export const Empty: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-          if (name === 'commits') {
-            return {
-              scope: 'repository',
-              name: 'commits',
-              data: { commits: [] } as unknown as T,
-              loading: false,
-              error: null,
-              refresh: async () => {},
-            };
-          }
-          return undefined;
+        commits: {
+          scope: 'repository',
+          name: 'commits',
+          data: { commits: [] },
+          loading: false,
+          error: null,
+          refresh: async () => {},
         },
-        hasSlice: (name: string) => name === 'commits',
-        isSliceLoading: () => false,
       }}
     >
-      {(props) => <GitCommitHistoryPanel {...props} />}
+      {(props) => <GitCommitHistoryPanel {...props as GitCommitHistoryPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -65,24 +57,17 @@ export const Loading: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-          if (name === 'commits') {
-            return {
-              scope: 'repository',
-              name: 'commits',
-              data: { commits: [] } as unknown as T,
-              loading: true,
-              error: null,
-              refresh: async () => {},
-            };
-          }
-          return undefined;
+        commits: {
+          scope: 'repository',
+          name: 'commits',
+          data: { commits: [] },
+          loading: true,
+          error: null,
+          refresh: async () => {},
         },
-        hasSlice: (name: string) => name === 'commits',
-        isSliceLoading: (name: string) => name === 'commits',
       }}
     >
-      {(props) => <GitCommitHistoryPanel {...props} />}
+      {(props) => <GitCommitHistoryPanel {...props as GitCommitHistoryPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -102,7 +87,7 @@ export const NoRepository: Story = {
         },
       }}
     >
-      {(props) => <GitCommitHistoryPanel {...props} />}
+      {(props) => <GitCommitHistoryPanel {...props as GitCommitHistoryPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -115,11 +100,10 @@ export const NoSlice: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        hasSlice: () => false,
-        getSlice: () => undefined,
+        commits: undefined,
       }}
     >
-      {(props) => <GitCommitHistoryPanel {...props} />}
+      {(props) => <GitCommitHistoryPanel {...props as GitCommitHistoryPanelProps} />}
     </MockPanelProvider>
   ),
 };

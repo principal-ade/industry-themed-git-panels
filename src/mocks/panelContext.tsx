@@ -274,78 +274,23 @@ const createMockSlice = <T,>(
 });
 
 /**
- * Mock Panel Context for Storybook
+ * Mock context type for stories - includes all possible slice properties
  */
-export const createMockContext = (
-  overrides?: Partial<PanelContextValue>
-): PanelContextValue => {
-  // Create mock data slices
-  const mockSlices = new Map<string, DataSlice>([
-    ['git', createMockSlice('git', mockGitStatusData)],
-    ['commits', createMockSlice('commits', mockCommitsData)],
-    ['pullRequests', createMockSlice('pullRequests', mockPullRequestsData)],
-    ['gitConfig', createMockSlice('gitConfig', mockGitConfigData)],
-    [
-      'markdown',
-      createMockSlice('markdown', [
-        {
-          path: 'README.md',
-          title: 'Project README',
-          lastModified: Date.now() - 3600000,
-        },
-        {
-          path: 'docs/API.md',
-          title: 'API Documentation',
-          lastModified: Date.now() - 86400000,
-        },
-      ]),
-    ],
-    [
-      'fileTree',
-      createMockSlice('fileTree', {
-        name: 'my-project',
-        path: '/Users/developer/my-project',
-        type: 'directory',
-        children: [
-          {
-            name: 'src',
-            path: '/Users/developer/my-project/src',
-            type: 'directory',
-          },
-          {
-            name: 'package.json',
-            path: '/Users/developer/my-project/package.json',
-            type: 'file',
-          },
-        ],
-      }),
-    ],
-    [
-      'packages',
-      createMockSlice('packages', [
-        { name: 'react', version: '19.0.0', path: '/node_modules/react' },
-        {
-          name: 'typescript',
-          version: '5.0.4',
-          path: '/node_modules/typescript',
-        },
-      ]),
-    ],
-    [
-      'quality',
-      createMockSlice('quality', {
-        coverage: 85,
-        issues: 3,
-        complexity: 12,
-      }),
-    ],
-  ]);
+export interface MockPanelContext {
+  commits?: DataSlice<CommitsSliceData>;
+  pullRequests?: DataSlice<PullRequestsSliceData>;
+  gitConfig?: DataSlice<GitConfigSliceData>;
+}
 
-  // TODO: Refactor to return properly typed mock contexts per panel instead of using 'any' cast
-  // This would provide better type safety in story files. For now, we cast to support v0.4.2 typed contexts.
-  const defaultContext: any = {
+/**
+ * Mock Panel Context for Storybook (v0.5+ API with direct slice properties)
+ */
+export const createMockContext = <T extends MockPanelContext = MockPanelContext>(
+  overrides?: Partial<PanelContextValue<T>>
+): PanelContextValue<T> => {
+  const defaultContext = {
     currentScope: {
-      type: 'repository',
+      type: 'repository' as const,
       workspace: {
         name: 'my-workspace',
         path: '/Users/developer/my-workspace',
@@ -355,37 +300,6 @@ export const createMockContext = (
         path: '/Users/developer/my-project',
       },
     },
-    slices: mockSlices,
-    getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-      return mockSlices.get(name) as DataSlice<T> | undefined;
-    },
-    getWorkspaceSlice: <T,>(name: string): DataSlice<T> | undefined => {
-      const slice = mockSlices.get(name);
-      return slice?.scope === 'workspace'
-        ? (slice as DataSlice<T>)
-        : undefined;
-    },
-    getRepositorySlice: <T,>(name: string): DataSlice<T> | undefined => {
-      const slice = mockSlices.get(name);
-      return slice?.scope === 'repository'
-        ? (slice as DataSlice<T>)
-        : undefined;
-    },
-    hasSlice: (name: string, scope?: 'workspace' | 'repository'): boolean => {
-      const slice = mockSlices.get(name);
-      if (!slice) return false;
-      if (!scope) return true;
-      return slice.scope === scope;
-    },
-    isSliceLoading: (
-      name: string,
-      scope?: 'workspace' | 'repository'
-    ): boolean => {
-      const slice = mockSlices.get(name);
-      if (!slice) return false;
-      if (scope && slice.scope !== scope) return false;
-      return slice.loading;
-    },
     refresh: async (
       scope?: 'workspace' | 'repository',
       slice?: string
@@ -393,13 +307,13 @@ export const createMockContext = (
       // eslint-disable-next-line no-console
       console.log('[Mock] Context refresh called', { scope, slice });
     },
-    // Add typed slice properties for v0.4.2+ compatibility
-    commits: mockSlices.get('commits') as DataSlice<CommitsSliceData> | undefined,
-    pullRequests: mockSlices.get('pullRequests') as DataSlice<PullRequestsSliceData> | undefined,
-    gitConfig: mockSlices.get('gitConfig') as DataSlice<GitConfigSliceData> | undefined,
+    // Direct typed slice properties (v0.5+ API)
+    commits: createMockSlice('commits', mockCommitsData),
+    pullRequests: createMockSlice('pullRequests', mockPullRequestsData),
+    gitConfig: createMockSlice('gitConfig', mockGitConfigData),
   };
 
-  return { ...defaultContext, ...overrides } as PanelContextValue;
+  return { ...defaultContext, ...overrides } as PanelContextValue<T>;
 };
 
 /**
@@ -477,8 +391,8 @@ export const createMockEvents = (): PanelEventEmitter => {
  * Wraps components with mock context and ThemeProvider for Storybook
  */
 export const MockPanelProvider: React.FC<{
-  children: (props: PanelComponentProps) => React.ReactNode;
-  contextOverrides?: Partial<PanelContextValue>;
+  children: (props: PanelComponentProps<PanelActions, MockPanelContext>) => React.ReactNode;
+  contextOverrides?: Partial<PanelContextValue<MockPanelContext>>;
   actionsOverrides?: Partial<PanelActions>;
 }> = ({ children, contextOverrides, actionsOverrides }) => {
   const context = createMockContext(contextOverrides);

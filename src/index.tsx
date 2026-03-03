@@ -2,7 +2,12 @@ import { GitCommitHistoryPanel } from './panels/GitCommitHistoryPanel';
 import { GitCommitDetailPanel } from './panels/GitCommitDetailPanel';
 import { GitPullRequestsPanel } from './panels/GitPullRequestsPanel';
 import { GitPullRequestDetailPanel } from './panels/GitPullRequestDetailPanel';
-import type { PanelDefinition, PanelContextValue } from './types';
+import type {
+  PanelDefinition,
+  GitCommitHistoryPanelContext,
+  GitPullRequestsPanelContext,
+  PanelContextValue,
+} from './types';
 import {
   commitHistoryTools,
   commitHistoryToolsMetadata,
@@ -32,9 +37,9 @@ export const panels: PanelDefinition<any, any>[] = [
     },
     component: GitCommitHistoryPanel,
 
-    onMount: async (context: PanelContextValue) => {
+    onMount: async (context: PanelContextValue<GitCommitHistoryPanelContext>) => {
       // Refresh commits data when panel mounts (using direct typed slice access)
-      const commitsSlice = context.getSlice('commits');
+      const commitsSlice = context.commits;
       if (commitsSlice && !commitsSlice.loading) {
         await context.refresh('repository', 'commits');
       }
@@ -66,9 +71,9 @@ export const panels: PanelDefinition<any, any>[] = [
     },
     component: GitPullRequestsPanel,
 
-    onMount: async (context: PanelContextValue) => {
+    onMount: async (context: PanelContextValue<GitPullRequestsPanelContext>) => {
       // Refresh PR data when panel mounts (using direct typed slice access)
-      const pullRequestsSlice = context.getSlice('pullRequests');
+      const pullRequestsSlice = context.pullRequests;
       if (pullRequestsSlice && !pullRequestsSlice.loading) {
         await context.refresh('repository', 'pullRequests');
       }

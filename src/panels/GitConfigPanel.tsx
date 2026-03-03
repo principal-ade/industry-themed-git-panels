@@ -17,8 +17,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useTheme } from '@principal-ade/industry-theme';
-import type { PanelComponentProps } from '../types';
-import type { GitConfigSliceData, GitRemoteInfo, GitBranchConfig } from '../types';
+import type { GitConfigPanelProps, GitRemoteInfo, GitBranchConfig, GitConfigEntry } from '../types';
 
 type ViewMode = 'summary' | 'detailed';
 
@@ -34,7 +33,7 @@ type ViewMode = 'summary' | 'detailed';
  * - Refresh via context.refresh()
  * - Tool events for programmatic interaction
  */
-export const GitConfigPanel: React.FC<PanelComponentProps> = ({
+export const GitConfigPanel: React.FC<GitConfigPanelProps> = ({
   context,
   events,
 }) => {
@@ -44,10 +43,10 @@ export const GitConfigPanel: React.FC<PanelComponentProps> = ({
     new Set(['user', 'remotes'])
   );
 
-  // Get config from the slice
-  const configSlice = context.getSlice<GitConfigSliceData>('gitConfig');
-  const hasConfig = context.hasSlice('gitConfig');
-  const isLoading = context.isSliceLoading('gitConfig');
+  // Get config from the slice (v0.5+ direct property access)
+  const configSlice = context.gitConfig;
+  const hasConfig = 'gitConfig' in context && configSlice != null;
+  const isLoading = configSlice?.loading ?? false;
   const config = configSlice?.data;
 
   // Subscribe to panel events
@@ -286,7 +285,7 @@ export const GitConfigPanel: React.FC<PanelComponentProps> = ({
                   No remotes configured
                 </div>
               ) : (
-                config?.remotes.map((remote) => (
+                config?.remotes.map((remote: GitRemoteInfo) => (
                   <RemoteCard key={remote.name} remote={remote} theme={theme} />
                 ))
               )}
@@ -312,7 +311,7 @@ export const GitConfigPanel: React.FC<PanelComponentProps> = ({
                   No branch tracking configured
                 </div>
               ) : (
-                config?.branches.map((branch) => (
+                config?.branches.map((branch: GitBranchConfig) => (
                   <BranchCard key={branch.name} branch={branch} theme={theme} />
                 ))
               )}
@@ -563,7 +562,7 @@ export const GitConfigPanel: React.FC<PanelComponentProps> = ({
               gap: '2px',
             }}
           >
-            {config?.allEntries.map((entry, index) => (
+            {config?.allEntries.map((entry: GitConfigEntry, index: number) => (
               <div
                 key={`${entry.key}-${index}`}
                 style={{

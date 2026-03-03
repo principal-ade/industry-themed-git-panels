@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { GitPullRequestsPanel, GitPullRequestsPanelPreview } from './GitPullRequestsPanel';
 import { MockPanelProvider, createMockContext } from '../mocks/panelContext';
-import type { DataSlice } from '../types';
-import type { PullRequestsSliceData } from '../types';
+import type { GitPullRequestsPanelProps } from '../types';
 
 const meta: Meta<typeof GitPullRequestsPanel> = {
   title: 'Git Panels/Pull Requests',
@@ -22,7 +21,7 @@ type Story = StoryObj<typeof GitPullRequestsPanel>;
 export const Default: Story = {
   render: () => (
     <MockPanelProvider>
-      {(props) => <GitPullRequestsPanel {...props} />}
+      {(props) => <GitPullRequestsPanel {...props as GitPullRequestsPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -35,24 +34,17 @@ export const Empty: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-          if (name === 'pullRequests') {
-            return {
-              scope: 'repository',
-              name: 'pullRequests',
-              data: { pullRequests: [], owner: 'example', repo: 'repo' } as unknown as T,
-              loading: false,
-              error: null,
-              refresh: async () => {},
-            };
-          }
-          return undefined;
+        pullRequests: {
+          scope: 'repository',
+          name: 'pullRequests',
+          data: { pullRequests: [], owner: 'example', repo: 'repo' },
+          loading: false,
+          error: null,
+          refresh: async () => {},
         },
-        hasSlice: (name: string) => name === 'pullRequests',
-        isSliceLoading: () => false,
       }}
     >
-      {(props) => <GitPullRequestsPanel {...props} />}
+      {(props) => <GitPullRequestsPanel {...props as GitPullRequestsPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -65,24 +57,17 @@ export const Loading: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-          if (name === 'pullRequests') {
-            return {
-              scope: 'repository',
-              name: 'pullRequests',
-              data: { pullRequests: [] } as unknown as T,
-              loading: true,
-              error: null,
-              refresh: async () => {},
-            };
-          }
-          return undefined;
+        pullRequests: {
+          scope: 'repository',
+          name: 'pullRequests',
+          data: { pullRequests: [] },
+          loading: true,
+          error: null,
+          refresh: async () => {},
         },
-        hasSlice: (name: string) => name === 'pullRequests',
-        isSliceLoading: (name: string) => name === 'pullRequests',
       }}
     >
-      {(props) => <GitPullRequestsPanel {...props} />}
+      {(props) => <GitPullRequestsPanel {...props as GitPullRequestsPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -102,7 +87,7 @@ export const NoRepository: Story = {
         },
       }}
     >
-      {(props) => <GitPullRequestsPanel {...props} />}
+      {(props) => <GitPullRequestsPanel {...props as GitPullRequestsPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -115,11 +100,10 @@ export const NoSlice: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        hasSlice: () => false,
-        getSlice: () => undefined,
+        pullRequests: undefined,
       }}
     >
-      {(props) => <GitPullRequestsPanel {...props} />}
+      {(props) => <GitPullRequestsPanel {...props as GitPullRequestsPanelProps} />}
     </MockPanelProvider>
   ),
 };
@@ -132,62 +116,54 @@ export const OnlyOpenPRs: Story = {
     <MockPanelProvider
       contextOverrides={{
         ...createMockContext(),
-        getSlice: <T,>(name: string): DataSlice<T> | undefined => {
-          if (name === 'pullRequests') {
-            const data: PullRequestsSliceData = {
-              pullRequests: [
-                {
-                  id: 1001,
-                  number: 42,
-                  title: 'feat: implement dark mode toggle',
-                  body: 'This PR adds a dark mode toggle.',
-                  state: 'open',
-                  draft: false,
-                  html_url: 'https://github.com/example/repo/pull/42',
-                  user: { login: 'alex-dev' },
-                  created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-                  updated_at: new Date().toISOString(),
-                  base: { ref: 'main' },
-                  head: { ref: 'feature/dark-mode' },
-                  comments: 3,
-                  review_comments: 2,
-                },
-                {
-                  id: 1002,
-                  number: 43,
-                  title: 'fix: resolve memory leak',
-                  body: 'Fixed memory leak.',
-                  state: 'open',
-                  draft: true,
-                  html_url: 'https://github.com/example/repo/pull/43',
-                  user: { login: 'jordan-smith' },
-                  created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-                  updated_at: new Date().toISOString(),
-                  base: { ref: 'main' },
-                  head: { ref: 'fix/memory-leak' },
-                  comments: 0,
-                  review_comments: 0,
-                },
-              ],
-              owner: 'example',
-              repo: 'repo',
-            };
-            return {
-              scope: 'repository',
-              name: 'pullRequests',
-              data: data as unknown as T,
-              loading: false,
-              error: null,
-              refresh: async () => {},
-            };
-          }
-          return undefined;
+        pullRequests: {
+          scope: 'repository',
+          name: 'pullRequests',
+          data: {
+            pullRequests: [
+              {
+                id: 1001,
+                number: 42,
+                title: 'feat: implement dark mode toggle',
+                body: 'This PR adds a dark mode toggle.',
+                state: 'open',
+                draft: false,
+                html_url: 'https://github.com/example/repo/pull/42',
+                user: { login: 'alex-dev' },
+                created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                updated_at: new Date().toISOString(),
+                base: { ref: 'main' },
+                head: { ref: 'feature/dark-mode' },
+                comments: 3,
+                review_comments: 2,
+              },
+              {
+                id: 1002,
+                number: 43,
+                title: 'fix: resolve memory leak',
+                body: 'Fixed memory leak.',
+                state: 'open',
+                draft: true,
+                html_url: 'https://github.com/example/repo/pull/43',
+                user: { login: 'jordan-smith' },
+                created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+                updated_at: new Date().toISOString(),
+                base: { ref: 'main' },
+                head: { ref: 'fix/memory-leak' },
+                comments: 0,
+                review_comments: 0,
+              },
+            ],
+            owner: 'example',
+            repo: 'repo',
+          },
+          loading: false,
+          error: null,
+          refresh: async () => {},
         },
-        hasSlice: (name: string) => name === 'pullRequests',
-        isSliceLoading: () => false,
       }}
     >
-      {(props) => <GitPullRequestsPanel {...props} />}
+      {(props) => <GitPullRequestsPanel {...props as GitPullRequestsPanelProps} />}
     </MockPanelProvider>
   ),
 };
